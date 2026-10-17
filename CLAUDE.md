@@ -46,5 +46,6 @@ Jordy keeps one loose text file with notes about everything. When he says "verwe
 | "ze hebben 3000 bijgestort" | `deposit vandebron --amount 3000 --label "Aanvulling"` |
 | "geef Jasmijn ook toegang" | `user:add vandebron --email ... --name "..."` |
 | "nieuwe klant Acme" | `client:new acme --name "Acme" --rate 110 --start ... --end ... --deposit ...` then logo, `user:add`, `client:live` |
+| "Acme's hoofdkleur is #FFD400" | `client:new ... --brand "#FFD400"` (or `client:set acme --palette "#FFD400"` later). The script derives all theme colours and prints any contrast shift; tell Jordy about those shifts |
 
 After pushing, report the new remaining budget and say if a 50/20/10 line was crossed, because that client gets an email within the hour.

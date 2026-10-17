@@ -30,9 +30,9 @@ Reading
 Clients and projects
   client:new <slug> --name "Acme" --rate 110 --start 2027-01-01 --end 2027-12-31
              [--deposit 5000] [--deposit-date 2027-01-01] [--label "Design capaciteit"]
-             [--team "Marketing"] [--contact "Name"] [--brand #hex --deep #hex --soft #hex --accent #hex]
+             [--team "Marketing"] [--contact "Name"] [--brand #hex]  (one main colour; the other theme colours are derived from it)
              [--logo /assets/clients/acme.svg]
-  client:set <slug> [--name] [--rate] [--start] [--end] [--label] [--team] [--contact] [--brand] [--deep] [--soft] [--accent] [--hero] [--hero-ink] [--hero-fill] [--logo] [--branded-login on|off]
+  client:set <slug> [--name] [--rate] [--start] [--end] [--label] [--team] [--contact] [--palette #hex] [--brand] [--deep] [--soft] [--accent] [--hero] [--hero-ink] [--hero-fill] [--logo] [--branded-login on|off]
   client:live <slug> [--clear-entries|--reset]  Remove the example flag. --reset also clears the example deposits
   scope <client> [--in "Item | Item"] [--out "Item | Item"] [--note "..."]   What falls inside and outside the retainer (shown on the dashboard)
   project:add <client> --name "Social templates" [--id social] [--status Lopend]
@@ -190,7 +190,7 @@ const { values: o, positionals } = parseArgs({
   options: {
     name: { type: "string" }, rate: { type: "string" }, start: { type: "string" }, end: { type: "string" },
     deposit: { type: "string" }, "deposit-date": { type: "string" }, label: { type: "string" },
-    team: { type: "string" }, contact: { type: "string" }, brand: { type: "string" }, deep: { type: "string" },
+    team: { type: "string" }, contact: { type: "string" }, brand: { type: "string" }, palette: { type: "string" }, deep: { type: "string" },
     soft: { type: "string" }, accent: { type: "string" }, hero: { type: "string" }, "hero-ink": { type: "string" }, "hero-fill": { type: "string" }, "branded-login": { type: "string" }, in: { type: "string" }, out: { type: "string" }, "project-name": { type: "string" }, file: { type: "string" }, "dry-run": { type: "boolean" }, logo: { type: "string" }, id: { type: "string" },
     status: { type: "string" }, project: { type: "string" }, hours: { type: "string" }, note: { type: "string" },
     date: { type: "string" }, amount: { type: "string" }, email: { type: "string" }, password: { type: "string" },
@@ -199,6 +199,32 @@ const { values: o, positionals } = parseArgs({
   },
 });
 const [cmd, a1, a2] = positionals;
+
+// ---------- palette from one main colour ----------
+// Turns a client's main colour into the seven theme slots. Keeps the colour itself where it is readable,
+// shifts lightness only where contrast demands it, and reports every shift.
+function hexToRgb(h) { const m = /^#?([0-9a-f]{6})$/i.exec(String(h).trim()); if (!m) fail(`"${h}" is not a hex colour like #43B02A`); const n = parseInt(m[1], 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+const rgbToHex = (r, g, b) => "#" + [r, g, b].map((v) => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, "0")).join("").toUpperCase();
+function rgbToHsl([r, g, b]) { r /= 255; g /= 255; b /= 255; const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2; if (mx === mn) return [0, 0, l]; const d = mx - mn, s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn); const h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return [h / 6, s, l]; }
+function hslToHex(h, s, l) { const f = (n) => { const k = (n + h * 12) % 12, a = s * Math.min(l, 1 - l); return 255 * (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1))); }; return rgbToHex(f(0), f(8), f(4)); }
+function lum(hex) { return hexToRgb(hex).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }).reduce((a, v, i) => a + v * [0.2126, 0.7152, 0.0722][i], 0); }
+const contrast = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+function shiftUntil(hex, against, min, dir) { let [h, s, l] = rgbToHsl(hexToRgb(hex)); let out = hex.toUpperCase(); for (let i = 0; i < 60 && contrast(out, against) < min; i++) { l = Math.max(0, Math.min(1, l + dir * 0.01)); out = hslToHex(h, s, l); } return out; }
+export function paletteFrom(main) {
+  const base = rgbToHex(...hexToRgb(main));
+  const [h, s] = rgbToHsl(hexToRgb(base));
+  const deep = hslToHex(h, Math.min(s, 0.35), 0.12);
+  const soft = hslToHex(h, Math.min(s, 0.6), 0.92);
+  const notes = [];
+  const brand = shiftUntil(base, "#FFFFFF", 3, -1);         // lines and buttons on white
+  if (brand !== base) notes.push(`lines and chart: ${base} is too light on white, using ${brand}`);
+  const heroFill = shiftUntil(base, deep, 4.5, +1);         // big amount on the dark block
+  if (heroFill !== base) notes.push(`amount in the budget block: ${base} is too dark there, using ${heroFill}`);
+  // The 50/20/10 markers are pink. For red and pink brands they would vanish, so use amber there.
+  const hueGap = Math.min(Math.abs(h - 0.94), 1 - Math.abs(h - 0.94));
+  const accent = s > 0.3 && hueGap < 0.1 ? "#F5B700" : "#E83F7A";
+  return { theme: { brand, brandDeep: deep, brandSoft: soft, accent, hero: deep, heroInk: "#FFFFFF", heroFill }, notes };
+}
 
 const commands = {
   help() { console.log(HELP); },
@@ -252,7 +278,14 @@ const commands = {
     if (!o.name || !o.rate || !o.start || !o.end) fail("client:new needs --name, --rate, --start and --end");
     const data = {
       client: { name: o.name, slug, team: o.team || "", contact: o.contact || "" },
-      theme: { brand: o.brand || "#141414", brandDeep: o.deep || "#141414", brandSoft: o.soft || "#EDEDEA", accent: o.accent || "#ED1C24", logo: o.logo || null },
+      theme: (() => {
+        const p = o.brand ? paletteFrom(o.brand) : { theme: { brand: "#141414", brandDeep: "#141414", brandSoft: "#EDEDEA", accent: "#ED1C24" }, notes: [] };
+        p.notes.forEach((n) => console.log(`  colour: ${n}`));
+        const t = { ...p.theme };
+        if (o.deep) t.brandDeep = o.deep; if (o.soft) t.brandSoft = o.soft; if (o.accent) t.accent = o.accent;
+        if (o.hero) t.hero = o.hero; if (o["hero-ink"]) t.heroInk = o["hero-ink"]; if (o["hero-fill"]) t.heroFill = o["hero-fill"];
+        return { ...t, logo: o.logo || null };
+      })(),
       updated: todayISO(),
       retainer: {
         label: o.label || "Retainer",
@@ -273,6 +306,11 @@ const commands = {
     const data = load(a1);
     const map = { name: ["client", "name"], team: ["client", "team"], contact: ["client", "contact"], label: ["retainer", "label"], start: ["retainer", "start"], end: ["retainer", "end"], brand: ["theme", "brand"], deep: ["theme", "brandDeep"], soft: ["theme", "brandSoft"], accent: ["theme", "accent"], hero: ["theme", "hero"], "hero-ink": ["theme", "heroInk"], "hero-fill": ["theme", "heroFill"], logo: ["theme", "logo"] };
     let changed = 0;
+    if (o.palette !== undefined) { // one main colour -> all theme slots; explicit colour flags below still win
+      const p = paletteFrom(o.palette);
+      p.notes.forEach((n) => console.log(`  colour: ${n}`));
+      data.theme = { ...data.theme, ...p.theme }; changed++;
+    }
     for (const [k, [obj, key]] of Object.entries(map)) if (o[k] !== undefined) { data[obj] ||= {}; data[obj][key] = o[k]; changed++; }
     if (o.rate !== undefined) { data.retainer.rate = num(o.rate, "rate"); changed++; }
     if (o["branded-login"] !== undefined) { data.brandedLogin = o["branded-login"] !== "off"; changed++; }
