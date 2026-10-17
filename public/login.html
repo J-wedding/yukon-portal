@@ -181,6 +181,8 @@ input:focus{outline:none;border-color:var(--fg);box-shadow:0 0 0 1px var(--fg)}
   const next = window.PORTAL_NEXT || q.get("next") || "";
   const email = q.get("email") || "";
   let mode = q.get("mode") === "password" ? "password" : "link";
+  // Clients never have a password, so the switch only shows on /login?mode=password (admin fallback).
+  $("modeSwitch").hidden = mode !== "password";
 
   $("next").value = next; $("resendNext").value = next;
   $("email").value = email; $("resendEmail").value = email;

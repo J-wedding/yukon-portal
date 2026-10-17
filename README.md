@@ -43,7 +43,7 @@ Add new site, Import an existing project, pick the repo. Build settings come fro
 Redeploy after changing variables.
 
 ### 3. Email sending (Resend)
-Login links depend on this, so nobody can log in until it works (except an admin with a backup password).
+Login links depend on this, so nobody can log in until it works (except an admin with a backup password, via `/login?mode=password`; the password option is hidden from the normal login page).
 Create a Resend account, add the domain `studioyukon.com` and add the DNS records it shows in Squarespace (Settings, Domains, DNS). Once verified, create an API key and put it in `RESEND_API_KEY`.
 
 ### 4. Your own address
