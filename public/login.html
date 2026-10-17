@@ -41,13 +41,13 @@ body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 var(--display);
 .story{padding-block:36px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:clamp(24px,5vw,72px)}
 .story-inner{grid-row:3;align-self:start;display:grid;gap:36px;max-width:560px}
 .logos{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.logo{display:block;width:140px;height:auto}
+.logo{display:block;width:clamp(150px,11vw,190px);height:auto}
 /* Both top rows share one height so the Yukon logo (left) and the client logo (panel) sit on one line. */
-.logos,.side-top{grid-row:2;min-height:54px;margin-bottom:32px;display:flex;align-items:center}
+.logos,.side-top{grid-row:2;min-height:74px;margin-bottom:32px;display:flex;align-items:center}
 .side-top{width:100%;max-width:400px}
 .legal{grid-row:5}
 .client-logo{color:var(--logo);display:flex;align-items:center}
-.client-logo svg{height:30px;width:auto;display:block}
+.client-logo svg{height:clamp(32px,2.4vw,44px);width:auto;display:block}
 .logos .with{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 h1{margin:0;font-weight:900;font-size:clamp(38px,5.4vw,68px);line-height:.98;letter-spacing:-.045em;text-wrap:balance}
 .lede{margin:0;color:var(--muted);font-size:18px;max-width:46ch}
@@ -98,7 +98,9 @@ input:focus{outline:none;border-color:var(--fg);box-shadow:0 0 0 1px var(--fg)}
   .page{grid-template-columns:1fr;grid-template-rows:none}
   .story,.side{grid-row:auto;grid-template-rows:none;row-gap:24px}
   .story > *,.side > *{grid-row:auto}
-  .logos,.side-top{margin-bottom:0}
+  .logos,.side-top{margin-bottom:0;min-height:0}
+  .logo{width:150px}
+  .client-logo svg{height:34px}
   .story{gap:28px;padding-block:24px 8px;padding-right:max(24px,env(safe-area-inset-right,0px))}
   .story-inner{gap:24px}
   .receipt-wrap{display:none}
