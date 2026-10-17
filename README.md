@@ -62,11 +62,13 @@ The portal uses Proxima Nova when your Adobe Fonts kit is connected, and Figtree
 node scripts/portal.mjs client:set vandebron --start 2026-11-01 --end 2027-10-31 --rate 110
 node scripts/portal.mjs client:live vandebron --reset
 node scripts/portal.mjs deposit vandebron --amount <startbedrag> --date <datum> --label Startbedrag
-node scripts/portal.mjs user:add vandebron --email <aafke's address> --name "Aafke Eppinga"
+node scripts/portal.mjs user:add vandebron --email aafkeeppinga@vandebron.nl --name "Aafke Eppinga"
+node scripts/portal.mjs user:add vandebron --email jasmijnkorver@vandebron.nl --name "Jasmijn Korver"
+node scripts/portal.mjs user:add vandebron --email margovangils@vandebron.nl --name "Margo van Gils"
 node scripts/portal.mjs scope vandebron   # check the scope text against the signed agreement
 ```
 
-Or ask Claude: "Zet Vandebron live met startbedrag 5000 per 1 november en geef Aafke en Jasmijn toegang."
+Or ask Claude: "Zet Vandebron live met startbedrag 5000 per 1 november." The three logins above are held back until then, so nobody sees example data.
 
 ## How logging in works
 

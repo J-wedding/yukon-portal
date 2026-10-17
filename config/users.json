@@ -1,21 +1,5 @@
 {
   "clients": {
-    "vandebron": [
-      {
-        "email": "aafkeeppinga@vandebron.nl",
-        "name": "Aafke Eppinga",
-        "notify": true
-      },
-      {
-        "email": "jasmijnkorver@vandebron.nl",
-        "name": "Jasmijn Korver",
-        "notify": true
-      },
-      {
-        "email": "margovangils@vandebron.nl",
-        "name": "Margo van Gils",
-        "notify": true
-      }
-    ]
+    "vandebron": []
   }
 }
