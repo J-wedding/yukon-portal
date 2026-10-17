@@ -191,7 +191,7 @@ const { values: o, positionals } = parseArgs({
     name: { type: "string" }, rate: { type: "string" }, start: { type: "string" }, end: { type: "string" },
     deposit: { type: "string" }, "deposit-date": { type: "string" }, label: { type: "string" },
     team: { type: "string" }, contact: { type: "string" }, brand: { type: "string" }, palette: { type: "string" }, deep: { type: "string" },
-    soft: { type: "string" }, accent: { type: "string" }, hero: { type: "string" }, "hero-ink": { type: "string" }, "hero-fill": { type: "string" }, "branded-login": { type: "string" }, in: { type: "string" }, out: { type: "string" }, "project-name": { type: "string" }, file: { type: "string" }, "dry-run": { type: "boolean" }, logo: { type: "string" }, id: { type: "string" },
+    soft: { type: "string" }, accent: { type: "string" }, hero: { type: "string" }, "hero-ink": { type: "string" }, "hero-fill": { type: "string" }, "branded-login": { type: "string" }, in: { type: "string" }, out: { type: "string" }, "project-name": { type: "string" }, file: { type: "string" }, "dry-run": { type: "boolean" }, "other-domain": { type: "boolean" }, logo: { type: "string" }, id: { type: "string" },
     status: { type: "string" }, project: { type: "string" }, hours: { type: "string" }, note: { type: "string" },
     date: { type: "string" }, amount: { type: "string" }, email: { type: "string" }, password: { type: "string" },
     "no-notify": { type: "boolean" }, on: { type: "boolean" }, off: { type: "boolean" },
@@ -476,6 +476,14 @@ const commands = {
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) fail("user:add needs a valid --email");
     const u = loadUsers(); u.clients ||= {};
     for (const [c, list] of Object.entries(u.clients)) if (list.some((x) => x.email === email)) fail(`${email} already has a login for ${c}`);
+    // Guard against putting someone in the wrong client's portal (the one mistake the gate cannot catch).
+    const dom = email.split("@")[1];
+    const PUBLIC = new Set(["gmail.com", "googlemail.com", "outlook.com", "hotmail.com", "live.nl", "live.com", "icloud.com", "me.com", "yahoo.com", "ziggo.nl", "kpnmail.nl", "planet.nl", "xs4all.nl", "proton.me", "protonmail.com"]);
+    if (!PUBLIC.has(dom)) for (const [c, list] of Object.entries(u.clients)) {
+      if (c !== a1 && list.some((x) => x.email.endsWith("@" + dom))) fail(`${dom} belongs to ${c}. Adding ${email} to ${a1} would be a mix-up. Check the client`);
+    }
+    const own = [...new Set((u.clients[a1] || []).map((x) => x.email.split("@")[1]))];
+    if (own.length && !own.includes(dom) && !o["other-domain"]) fail(`${a1} logins so far use ${own.join(", ")}. ${email} is a different domain. If that is right (agency, freelancer, private address), add --other-domain`);
     const user = { email, name: o.name || "", notify: !o["no-notify"] };
     if (o.password) user.password = hashPassword(o.password);
     (u.clients[a1] ||= []).push(user);

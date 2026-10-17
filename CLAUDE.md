@@ -44,7 +44,7 @@ Jordy keeps one loose text file with notes about everything. When he says "verwe
 | "stocklicentie van 120 euro voor slim laden" | `cost vandebron --amount 120 --note "Stocklicentie illustratie" --project slim-laden` |
 | "zet in de afspraken dat animatie er niet onder valt" | `scope vandebron` to see the current lists, then `scope vandebron --out "Item | Item | ..."` with the full new list |
 | "ze hebben 3000 bijgestort" | `deposit vandebron --amount 3000 --label "Aanvulling"` |
-| "geef Jasmijn ook toegang" | `user:add vandebron --email ... --name "..."` |
+| "geef Jasmijn ook toegang" | `user:add vandebron --email ... --name "..."`. It refuses a domain that belongs to another client, and asks for `--other-domain` when the domain differs from the client's other logins. Never add that flag without Jordy confirming the person works for that client |
 | "nieuwe klant Acme" | `client:new acme --name "Acme" --rate 110 --start ... --end ... --deposit ...` then logo, `user:add`, `client:live` |
 | "Acme's hoofdkleur is #FFD400" | `client:new ... --brand "#FFD400"` (or `client:set acme --palette "#FFD400"` later). The script derives all theme colours and prints any contrast shift; tell Jordy about those shifts |
 
