@@ -34,14 +34,18 @@
 [hidden]{display:none!important}
 html,body{min-height:100%}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 var(--display);-webkit-font-smoothing:antialiased}
-.page{min-height:100vh;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
-.story{display:grid;grid-template-rows:auto 1fr auto;gap:40px;padding-block:36px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:clamp(24px,5vw,72px)}
-.story-inner{align-self:center;display:grid;gap:36px;max-width:560px}
+/* Both columns share the page's rows (subgrid): row 2 holds the two logos, row 3 the greeting and the form,
+   so the Yukon logo and the client logo sit on one line, right above "Goedemiddag" and "Inloggen". */
+.page{min-height:100vh;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-rows:1fr auto auto 1fr auto}
+.story,.side{grid-row:1/-1;display:grid;grid-template-rows:subgrid;row-gap:0}
+.story{padding-block:36px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:clamp(24px,5vw,72px)}
+.story-inner{grid-row:3;align-self:start;display:grid;gap:36px;max-width:560px}
 .logos{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .logo{display:block;width:140px;height:auto}
 /* Both top rows share one height so the Yukon logo (left) and the client logo (panel) sit on one line. */
-.logos,.side-top{min-height:54px;display:flex;align-items:center}
+.logos,.side-top{grid-row:2;min-height:54px;margin-bottom:32px;display:flex;align-items:center}
 .side-top{width:100%;max-width:400px}
+.legal{grid-row:5}
 .client-logo{color:var(--logo);display:flex;align-items:center}
 .client-logo svg{height:30px;width:auto;display:block}
 .logos .with{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
@@ -57,9 +61,8 @@ h1{margin:0;font-weight:900;font-size:clamp(38px,5.4vw,68px);line-height:.98;let
 .legal a{color:var(--fg);font-weight:700;text-decoration:none;border-bottom:1px solid var(--line)}
 .legal a:hover,.legal a:focus-visible{border-color:var(--fg);outline:none}
 
-.side{background:var(--panel);display:grid;grid-template-rows:auto 1fr auto;justify-items:center;align-items:center;gap:40px;padding-block:36px;padding-left:clamp(24px,5vw,64px);padding-right:max(24px,env(safe-area-inset-right,0px))}
-.card{width:100%;max-width:400px;display:grid;gap:22px}
-.side::after{content:"";min-height:20px} /* mirrors the address row so both columns centre alike */
+.side{background:var(--panel);justify-items:center;padding-block:36px;padding-left:clamp(24px,5vw,64px);padding-right:max(24px,env(safe-area-inset-right,0px))}
+.card{grid-row:3;align-self:start;width:100%;max-width:400px;display:grid;gap:22px}
 form{display:grid;gap:22px}
 .form-head{display:grid;gap:6px}
 .form-head h2{margin:0;font-size:24px;font-weight:800;letter-spacing:-.02em}
@@ -92,12 +95,14 @@ input:focus{outline:none;border-color:var(--fg);box-shadow:0 0 0 1px var(--fg)}
 .row{display:flex;gap:18px;flex-wrap:wrap}
 
 @media (max-width:860px){
-  .page{grid-template-columns:1fr}
+  .page{grid-template-columns:1fr;grid-template-rows:none}
+  .story,.side{grid-row:auto;grid-template-rows:none;row-gap:24px}
+  .story > *,.side > *{grid-row:auto}
+  .logos,.side-top{margin-bottom:0}
   .story{gap:28px;padding-block:24px 8px;padding-right:max(24px,env(safe-area-inset-right,0px))}
   .story-inner{gap:24px}
   .receipt-wrap{display:none}
-  .side{padding-block:28px 40px;padding-left:max(24px,env(safe-area-inset-left,0px));grid-template-rows:auto auto;gap:24px;align-items:start}
-  .side::after{display:none}
+  .side{padding-block:28px 40px;padding-left:max(24px,env(safe-area-inset-left,0px));align-items:start}
   .side-top{min-height:0}
   .side-top:has(#clientLogo[hidden]){display:none}
 }
