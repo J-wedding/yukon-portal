@@ -38,11 +38,13 @@ body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 var(--display);
 .story{display:grid;grid-template-rows:auto 1fr auto;gap:40px;padding-block:36px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:clamp(24px,5vw,72px)}
 .story-inner{align-self:center;display:grid;gap:36px;max-width:560px}
 .logos{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.logo{display:block;width:132px;height:auto}
+.logo{display:block;width:140px;height:auto}
+/* Both top rows share one height so the Yukon logo (left) and the client logo (panel) sit on one line. */
+.logos,.side-top{min-height:54px;display:flex;align-items:center}
+.side-top{width:100%;max-width:400px}
 .client-logo{color:var(--logo);display:flex;align-items:center}
 .client-logo svg{height:30px;width:auto;display:block}
 .logos .with{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-:root.branded .logo{width:92px}
 h1{margin:0;font-weight:900;font-size:clamp(38px,5.4vw,68px);line-height:.98;letter-spacing:-.045em;text-wrap:balance}
 .lede{margin:0;color:var(--muted);font-size:18px;max-width:46ch}
 
@@ -55,8 +57,9 @@ h1{margin:0;font-weight:900;font-size:clamp(38px,5.4vw,68px);line-height:.98;let
 .legal a{color:var(--fg);font-weight:700;text-decoration:none;border-bottom:1px solid var(--line)}
 .legal a:hover,.legal a:focus-visible{border-color:var(--fg);outline:none}
 
-.side{background:var(--panel);display:grid;place-items:center;padding-block:36px;padding-left:clamp(24px,5vw,64px);padding-right:max(24px,env(safe-area-inset-right,0px))}
+.side{background:var(--panel);display:grid;grid-template-rows:auto 1fr auto;justify-items:center;align-items:center;gap:40px;padding-block:36px;padding-left:clamp(24px,5vw,64px);padding-right:max(24px,env(safe-area-inset-right,0px))}
 .card{width:100%;max-width:400px;display:grid;gap:22px}
+.side::after{content:"";min-height:20px} /* mirrors the address row so both columns centre alike */
 form{display:grid;gap:22px}
 .form-head{display:grid;gap:6px}
 .form-head h2{margin:0;font-size:24px;font-weight:800;letter-spacing:-.02em}
@@ -93,7 +96,10 @@ input:focus{outline:none;border-color:var(--fg);box-shadow:0 0 0 1px var(--fg)}
   .story{gap:28px;padding-block:24px 8px;padding-right:max(24px,env(safe-area-inset-right,0px))}
   .story-inner{gap:24px}
   .receipt-wrap{display:none}
-  .side{padding-block:28px 40px;padding-left:max(24px,env(safe-area-inset-left,0px));place-items:start center}
+  .side{padding-block:28px 40px;padding-left:max(24px,env(safe-area-inset-left,0px));grid-template-rows:auto auto;gap:24px;align-items:start}
+  .side::after{display:none}
+  .side-top{min-height:0}
+  .side-top:has(#clientLogo[hidden]){display:none}
 }
 @media (prefers-reduced-motion:no-preference){
   .story-inner > *{animation:rise .5s ease both}
@@ -107,7 +113,6 @@ input:focus{outline:none;border-color:var(--fg);box-shadow:0 0 0 1px var(--fg)}
 <div class="page">
   <section class="story">
     <div class="logos">
-      <div class="client-logo" id="clientLogo" hidden></div>
       <a href="https://www.studioyukon.com" target="_blank" rel="noopener" aria-label="Studio Yukon website" style="line-height:0"><img class="logo" src="/assets/studio-yukon.svg" alt="Studio Yukon" width="132" height="51"></a>
     </div>
     <div class="story-inner">
@@ -127,6 +132,7 @@ input:focus{outline:none;border-color:var(--fg);box-shadow:0 0 0 1px var(--fg)}
   </section>
 
   <section class="side">
+    <div class="side-top"><div class="client-logo" id="clientLogo" hidden></div></div>
     <div class="card">
       <form method="post" action="/api/login" id="login" novalidate>
         <div class="form-head">
