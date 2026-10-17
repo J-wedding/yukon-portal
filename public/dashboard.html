@@ -351,6 +351,12 @@ function renderSummary(M, d) {
   else if (M.runOut && M.runOut <= M.end) { $("sRun").textContent = `${dShort.format(M.runOut)} ${M.runOut.getUTCFullYear()}`; $("sRunE").textContent = "Bij het huidige tempo"; }
   else if (M.runOut) { $("sRun").textContent = `Na ${dShort.format(M.end)}`; $("sRunE").textContent = "Loopt door tot het einde van de periode"; }
   else { $("sRun").textContent = "Nog niet"; $("sRunE").textContent = "Er is nog niets verbruikt"; }
+  if (!M.entries.length) { // go-live day: friendly empty states instead of a row of zeros
+    $("sMonth").textContent = "0 u"; $("sMonthE").textContent = "De eerste uren volgen hier";
+    $("sAvg").textContent = "Volgt"; $("sAvgE").textContent = "Na de eerste maand werk";
+    $("period").textContent = `Retainerperiode ${dShort.format(M.start)} ${M.start.getUTCFullYear()} tot ${dShort.format(M.end)} ${M.end.getUTCFullYear()} · ${eur.format(r.rate)} per uur`;
+    return;
+  }
   $("sMonth").textContent = hrs(M.thisMonth.hours);
   $("sMonthE").textContent = `${eur.format(M.thisMonth.hours * r.rate)} in ${mLong.format(M.thisMonth.m)}`;
   $("sAvg").textContent = hrs(M.avgHours);
@@ -477,7 +483,7 @@ function renderLog(M) {
   const tfoot = table.querySelector("tfoot");
   if (!rows.length) {
     const tb = document.createElement("tbody");
-    tb.innerHTML = `<tr><td colspan="4" class="empty">Nog geen uren geschreven. Zodra er gewerkt is, staat hier elke regel met datum, project en bedrag.</td></tr>`;
+    tb.innerHTML = `<tr><td colspan="4" class="empty">Nog geen uren geschreven. Zodra we aan de slag gaan, staat hier elke regel met datum, project en bedrag.</td></tr>`;
     table.insertBefore(tb, tfoot);
   }
   for (const g of byMonth(rows)) {
