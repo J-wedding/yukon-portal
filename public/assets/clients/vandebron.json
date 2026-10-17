@@ -1,0 +1,11 @@
+{
+  "name": "Vandebron",
+  "logo": "/assets/clients/vandebron.svg",
+  "brand": "#43B02A",
+  "brandDeep": "#131C24",
+  "brandSoft": "#CBF6B0",
+  "hero": "#131C24",
+  "heroInk": "#FFFFFF",
+  "heroFill": "#CBF6B0",
+  "radius": 14
+}

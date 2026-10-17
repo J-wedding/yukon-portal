@@ -1,0 +1,6 @@
+/* Studio Yukon house font (Proxima Nova via Adobe Fonts).
+   1. In Adobe Fonts, create a web project with Proxima Nova (400, 500, 700, 800, 900).
+   2. Add portal.studioyukon.com (and your Netlify preview domain) to the project's domains.
+   3. Replace KIT_ID below with the project ID and remove the comment markers.
+   Until then the portal falls back to Figtree, which is close in proportion. */
+/* @import url("https://use.typekit.net/KIT_ID.css"); */

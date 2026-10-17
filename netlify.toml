@@ -1,0 +1,21 @@
+[build]
+  publish = "public"
+
+[functions]
+  node_bundler = "esbuild"
+  # Data and logins are read from disk by the functions at runtime.
+  included_files = ["public/data/*.json", "public/assets/clients/*.json", "config/users.json"]
+
+# The gate runs on every request. Its own config (excludedPath) lets the
+# login page, the empty dashboard template, logos and the login endpoint through.
+[[edge_functions]]
+  path = "/*"
+  function = "auth"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "same-origin"
+    X-Robots-Tag = "noindex, nofollow"

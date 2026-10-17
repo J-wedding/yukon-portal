@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Yukon Portal Login</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="icon" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/fonts.css">
+<style>
+/* Layout: big claim left, small receipt under it, the form on the right.
+   Opened via /<client>/ the page takes that client's logo and colours (public brand file). */
+:root{
+  --bg:#FFFFFF; --panel:#F4F4F2; --fg:#141414; --muted:#6A6862; --line:#DFDDD8; --field:#FFFFFF;
+  --ink:#141414; --on-ink:#FFFFFF; --error:#C8141B; --ok:#1E7A3C; --radius:0px; --logo:#141414;
+  --display:"proxima-nova", "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F0F0E; --panel:#181817; --fg:#F2F1EE; --muted:#A19E97; --line:#2E2D2A; --field:#121211;
+  --ink:#F2F1EE; --on-ink:#141414; --error:#FF6B70; --ok:#7FD99B; --logo:#F2F1EE; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F0F0E; --panel:#181817; --fg:#F2F1EE; --muted:#A19E97; --line:#2E2D2A; --field:#121211;
+  --ink:#F2F1EE; --on-ink:#141414; --error:#FF6B70; --ok:#7FD99B; --logo:#F2F1EE; color-scheme:dark}
+/* Client branding keeps the panel light in both themes, like the client's own site. */
+:root.branded{--panel:var(--brand-soft); --ink:var(--brand-deep); --on-ink:#FFFFFF}
+:root.branded .side{color:#141414; --fg:#141414; --muted:#3F4A44; --line:color-mix(in srgb, var(--brand-deep) 22%, transparent); --field:#FFFFFF; --error:#B3121A}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 var(--display);-webkit-font-smoothing:antialiased}
+.page{min-height:100vh;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+.story{display:grid;grid-template-rows:auto 1fr auto;gap:40px;padding-block:36px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:clamp(24px,5vw,72px)}
+.story-inner{align-self:center;display:grid;gap:36px;max-width:560px}
+.logos{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.logo{display:block;width:132px;height:auto}
+.client-logo{color:var(--logo);display:flex;align-items:center}
+.client-logo svg{height:30px;width:auto;display:block}
+.logos .with{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+:root.branded .logo{width:92px}
+h1{margin:0;font-weight:900;font-size:clamp(38px,5.4vw,68px);line-height:.98;letter-spacing:-.045em;text-wrap:balance}
+.lede{margin:0;color:var(--muted);font-size:18px;max-width:46ch}
+
+.receipt{font-family:var(--mono);font-size:13px;line-height:1.5;border-top:1px dashed var(--line);border-bottom:1px dashed var(--line);padding:14px 0;display:grid;gap:4px;max-width:420px;font-variant-numeric:tabular-nums}
+.receipt div{display:grid;grid-template-columns:64px 1fr auto;gap:12px}
+.receipt .d{color:var(--muted)}
+.receipt .t{border-top:1px solid var(--line);margin-top:6px;padding-top:8px;font-weight:500}
+.receipt-cap{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.legal{font-size:13px;color:var(--muted);display:flex;gap:6px 18px;flex-wrap:wrap}
+.legal a{color:var(--fg);font-weight:700;text-decoration:none;border-bottom:1px solid var(--line)}
+.legal a:hover,.legal a:focus-visible{border-color:var(--fg);outline:none}
+
+.side{background:var(--panel);display:grid;place-items:center;padding-block:36px;padding-left:clamp(24px,5vw,64px);padding-right:max(24px,env(safe-area-inset-right,0px))}
+.card{width:100%;max-width:400px;display:grid;gap:22px}
+form{display:grid;gap:22px}
+.form-head{display:grid;gap:6px}
+.form-head h2{margin:0;font-size:24px;font-weight:800;letter-spacing:-.02em}
+.form-head p{margin:0;color:var(--muted);font-size:15px}
+.field{display:grid;gap:8px}
+label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.input{position:relative}
+input[type=email],input[type=password],input[type=text]{width:100%;font:inherit;font-size:17px;padding:14px 16px;border:1px solid var(--line);background:var(--field);color:var(--fg);border-radius:calc(var(--radius) * .6);transition:border-color .15s}
+input:hover{border-color:var(--muted)}
+input:focus{outline:none;border-color:var(--fg);box-shadow:0 0 0 1px var(--fg)}
+.toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);font:inherit;font-size:13px;font-weight:700;background:none;border:0;color:var(--muted);padding:8px 10px;cursor:pointer}
+.toggle:hover,.toggle:focus-visible{color:var(--fg);outline:none;text-decoration:underline}
+.primary{font:inherit;font-weight:800;font-size:16px;padding:16px 18px;border:0;background:var(--ink);color:var(--on-ink);cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-radius:var(--radius);width:100%}
+:root.branded .primary{border-radius:999px;padding-inline:22px}
+.primary:hover{opacity:.92}
+.primary:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+.primary[disabled]{opacity:.6;cursor:progress}
+.arrow{font-size:20px;line-height:1}
+.link{font:inherit;font-size:14px;font-weight:700;background:none;border:0;padding:0;color:var(--fg);text-decoration:underline;text-underline-offset:3px;cursor:pointer;justify-self:start}
+.link:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+.msg{margin:0;padding:12px 14px;border-left:3px solid var(--error);background:var(--field);color:var(--fg);font-size:14px;border-radius:calc(var(--radius) * .4)}
+.help{font-size:14px;color:var(--muted);margin:0}
+.sent{display:grid;gap:18px}
+.sent h2{margin:0;font-size:28px;font-weight:900;letter-spacing:-.03em;line-height:1.1}
+.sent p{margin:0}
+.sent .addr{font-weight:800;overflow-wrap:anywhere}
+.steps{margin:0;padding:0;list-style:none;display:grid;gap:10px;font-size:15px}
+.steps li{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start}
+.steps b{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--on-ink);font-size:12px}
+.row{display:flex;gap:18px;flex-wrap:wrap}
+
+@media (max-width:860px){
+  .page{grid-template-columns:1fr}
+  .story{gap:28px;padding-block:24px 8px;padding-right:max(24px,env(safe-area-inset-right,0px))}
+  .story-inner{gap:24px}
+  .receipt-wrap{display:none}
+  .side{padding-block:28px 40px;padding-left:max(24px,env(safe-area-inset-left,0px));place-items:start center}
+}
+@media (prefers-reduced-motion:no-preference){
+  .story-inner > *{animation:rise .5s ease both}
+  .story-inner > *:nth-child(2){animation-delay:.06s}
+  .story-inner > *:nth-child(3){animation-delay:.12s}
+  @keyframes rise{from{transform:translateY(8px)}to{transform:none}}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <section class="story">
+    <div class="logos">
+      <div class="client-logo" id="clientLogo" hidden></div>
+      <a href="https://www.studioyukon.com" target="_blank" rel="noopener" aria-label="Studio Yukon website" style="line-height:0"><img class="logo" src="/assets/studio-yukon.svg" alt="Studio Yukon" width="132" height="51"></a>
+    </div>
+    <div class="story-inner">
+      <h1 id="headline">Goedendag</h1>
+      <p class="lede" id="lede">Op deze portal kan je zien hoeveel budget er nog is, waar de uren naartoe gingen en wanneer het (bijna) op is. Altijd actueel, volledig transparant.</p>
+      <div class="receipt-wrap">
+        <div class="receipt-cap">Zo staat het in je logboek</div>
+        <div class="receipt" aria-label="Voorbeeld van een logboek">
+          <div><span class="d">10 feb</span><span>Oplevering bronbestanden</span><span>2,5 u</span></div>
+          <div><span class="d">05 feb</span><span>Presentatie strategiedag</span><span>2,0 u</span></div>
+          <div><span class="d">03 feb</span><span>Formaten voorjaarsflight</span><span>3,5 u</span></div>
+          <div class="t"><span class="d">feb</span><span>Totaal</span><span>8,0 u</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="legal"><span>Gietijzerstraat 50, Utrecht</span><span>Ma t/m vr, 9:00 tot 17:30</span><a href="https://www.studioyukon.com" target="_blank" rel="noopener">studioyukon.com ↗</a></div>
+  </section>
+
+  <section class="side">
+    <div class="card">
+      <form method="post" action="/api/login" id="login" novalidate>
+        <div class="form-head">
+          <h2 id="formTitle">Inloggen</h2>
+          <p id="formLead">Vul je zakelijke e-mailadres in. Je krijgt een link waarmee je direct in de omgeving van jouw organisatie komt.</p>
+        </div>
+        <p class="msg" id="error" role="alert" hidden></p>
+        <div class="field">
+          <label for="email">E-mailadres</label>
+          <input id="email" name="email" type="email" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="naam@bedrijf.nl" required>
+        </div>
+        <div class="field" id="pwField" hidden>
+          <label for="password">Wachtwoord</label>
+          <div class="input">
+            <input id="password" name="password" type="password" autocomplete="current-password">
+            <button type="button" class="toggle" id="toggle" aria-controls="password" aria-pressed="false">Toon</button>
+          </div>
+        </div>
+        <input type="hidden" name="next" id="next">
+        <button type="submit" class="primary" id="submit"><span id="submitLabel">Stuur inloglink</span><span class="arrow" aria-hidden="true">→</span></button>
+        <button type="button" class="link" id="modeSwitch">Inloggen met wachtwoord</button>
+        <p class="help">Geen toegang? Vraag het je contactpersoon bij Studio Yukon.</p>
+      </form>
+
+      <div class="sent" id="sent" hidden role="status">
+        <h2>Check je inbox</h2>
+        <p>Als <span class="addr" id="sentTo"></span> toegang heeft, staat er nu een inloglink voor je klaar.</p>
+        <ol class="steps">
+          <li><b>1</b><span>Open de mail van Studio Yukon.</span></li>
+          <li><b>2</b><span>Klik op <strong>Inloggen</strong>. De link werkt 15 minuten en één keer.</span></li>
+          <li><b>3</b><span>Je blijft daarna 14 dagen ingelogd op dit apparaat.</span></li>
+        </ol>
+        <p class="help">Niets ontvangen? Kijk in je spammap of vraag een nieuwe link aan.</p>
+        <form method="post" action="/api/login" id="resend" class="row">
+          <input type="hidden" name="email" id="resendEmail">
+          <input type="hidden" name="next" id="resendNext">
+          <button type="submit" class="link">Stuur een nieuwe link</button>
+          <a class="link" id="other" href="/login">Ander e-mailadres</a>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+<script>
+(() => {
+  const q = new URLSearchParams(location.search);
+  const $ = (id) => document.getElementById(id);
+  // Greeting by the visitor's own clock
+  const hr = new Date().getHours();
+  $("headline").textContent = hr >= 5 && hr < 12 ? "Goedemorgen" : hr >= 12 && hr < 18 ? "Goedemiddag" : "Goedenavond";
+
+  const next = window.PORTAL_NEXT || q.get("next") || "";
+  const email = q.get("email") || "";
+  let mode = q.get("mode") === "password" ? "password" : "link";
+
+  $("next").value = next; $("resendNext").value = next;
+  $("email").value = email; $("resendEmail").value = email;
+  $("other").href = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
+
+  const ERR = {
+    "1": "Dit e-mailadres en wachtwoord horen niet bij elkaar. Controleer ze, of log in met een link.",
+    email: "Dit lijkt geen geldig e-mailadres. Controleer de schrijfwijze.",
+    rate: "Er zijn net al een paar links naar dit adres gestuurd. Wacht een kwartier, of gebruik de laatste link uit je inbox.",
+    mail: "De mail kon niet worden verstuurd. Probeer het over een minuut opnieuw. Lukt het dan nog niet? Laat het Studio Yukon weten.",
+  };
+  function showError(text) { $("error").textContent = text; $("error").hidden = !text; }
+  if (q.get("e")) showError(ERR[q.get("e")] || ERR["1"]);
+
+  function setMode(m) {
+    mode = m;
+    const pw = m === "password";
+    $("pwField").hidden = !pw;
+    $("password").required = pw;
+    if (!pw) $("password").value = "";
+    $("submitLabel").textContent = pw ? "Inloggen" : "Stuur inloglink";
+    $("modeSwitch").textContent = pw ? "Inloggen met een link" : "Inloggen met wachtwoord";
+    $("formLead").textContent = pw
+      ? "Alleen als Studio Yukon je een wachtwoord heeft gegeven. Anders log je in met een link."
+      : "Vul je zakelijke e-mailadres in. Je krijgt een link waarmee je direct in de omgeving van jouw organisatie komt.";
+  }
+  setMode(mode);
+  $("modeSwitch").addEventListener("click", () => { setMode(mode === "password" ? "link" : "password"); showError(""); (mode === "password" && $("email").value ? $("password") : $("email")).focus(); });
+
+  if (q.get("sent")) {
+    $("login").hidden = true; $("sent").hidden = false;
+    $("sentTo").textContent = email || "je e-mailadres";
+  } else {
+    (email && mode === "password" ? $("password") : $("email")).focus({ preventScroll: true });
+  }
+
+  $("toggle").addEventListener("click", () => {
+    const show = $("password").type === "password";
+    $("password").type = show ? "text" : "password";
+    $("toggle").textContent = show ? "Verberg" : "Toon";
+    $("toggle").setAttribute("aria-pressed", String(show));
+  });
+
+  $("login").addEventListener("submit", (ev) => {
+    const e = $("email").value.trim();
+    const valid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
+    if (!valid || (mode === "password" && !$("password").value)) {
+      ev.preventDefault();
+      showError(!e ? "Vul je e-mailadres in." : !valid ? ERR.email : "Vul je wachtwoord in.");
+      return;
+    }
+    if (window.PORTAL_DEMO) { ev.preventDefault(); window.PORTAL_DEMO(e, mode); return; }
+    $("submit").disabled = true;
+    $("submitLabel").textContent = mode === "password" ? "Bezig met inloggen" : "Link wordt verstuurd";
+  });
+
+  // Client branding when the visitor came from /<client>/
+  const slug = (next.match(/^\/([a-z0-9-]+)\//) || [])[1];
+  async function brand() {
+    if (!slug) return;
+    try {
+      const b = window.PORTAL_BRAND || await (await fetch(`/assets/clients/${slug}.json`)).json();
+      if (!b || !b.name) return;
+      const root = document.documentElement;
+      root.classList.add("branded");
+      if (b.brandDeep) root.style.setProperty("--brand-deep", b.brandDeep);
+      root.style.setProperty("--brand-soft", b.heroFill || b.brandSoft || "#F4F4F2");
+      if (b.radius) root.style.setProperty("--radius", `${b.radius}px`);
+      if (b.brandDeep) root.style.setProperty("--logo", "var(--fg)");
+      document.title = `${b.name} · Inloggen`;
+      let svg = window.PORTAL_LOGO_SVG;
+      if (!svg && b.logo && b.logo.endsWith(".svg")) { const r = await fetch(b.logo); if (r.ok) svg = await r.text(); }
+      if (svg && svg.trim().startsWith("<svg")) {
+        $("clientLogo").innerHTML = svg;
+        $("clientLogo").querySelector("svg")?.setAttribute("aria-label", b.name);
+      } else {
+        $("clientLogo").textContent = b.name;
+        $("clientLogo").style.cssText = "font-weight:900;font-size:26px;letter-spacing:-.03em";
+      }
+      $("clientLogo").hidden = false;
+    } catch { /* plain Studio Yukon login */ }
+  }
+  brand();
+})();
+</script>
+</body>
+</html>

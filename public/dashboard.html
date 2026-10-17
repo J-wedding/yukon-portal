@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Retainer Dashboard</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="icon" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/fonts.css">
+<style>
+/* Layout: client wordmark on top, one saturated block for what is left, then the year, then the log.
+   Client colours come from data/<client>.json (theme) and override the brand tokens at runtime. */
+:root{
+  --bg:#F4F5F3; --surface:#FFFFFF; --fg:#131C24; --muted:#5D6670; --line:#E1E4E6; --grid:#ECEEEF;
+  --brand:#43B02A; --brand-deep:#131C24; --brand-soft:#E4F3DF; --accent:#E83F7A;
+  --hero:var(--brand-soft); --on-hero:var(--brand-deep); --on-hero-muted:color-mix(in srgb, var(--on-hero) 68%, var(--hero)); --hero-line:color-mix(in srgb, var(--on-hero) 16%, transparent); --logo:var(--brand-deep);
+  --radius:14px;
+  --font:"proxima-nova", "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0B1014; --surface:#121A20; --fg:#E8EDF0; --muted:#94A0A9; --line:#222D35; --grid:#1A242B;
+  --logo:var(--fg); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B1014; --surface:#121A20; --fg:#E8EDF0; --muted:#94A0A9; --line:#222D35; --grid:#1A242B;
+  --logo:var(--fg); color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--font);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:20px}
+h1,h2{margin:0;text-wrap:balance}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+header{display:flex;align-items:center;justify-content:space-between;gap:16px 24px;flex-wrap:wrap;padding-block:4px 8px}
+.client{display:flex;align-items:center;gap:16px;flex-wrap:wrap;min-width:0}
+.client-mark{color:var(--logo);display:flex;align-items:center}
+.client-mark svg{height:26px;width:auto;display:block}
+.client-name{font-size:28px;font-weight:900;letter-spacing:-.035em;line-height:1}
+.by{display:flex;align-items:center;gap:12px}
+.yukon{display:block;width:84px;height:auto}
+.logout{font:inherit;font-size:13px;font-weight:700;color:var(--fg);text-decoration:none;border:1px solid var(--line);padding:7px 14px;border-radius:999px;background:var(--surface)}
+.logout:hover,.logout:focus-visible{border-color:var(--fg);outline:none}
+.notice{margin:0;font-size:13px;color:var(--muted);border:1px dashed var(--line);border-radius:var(--radius);padding:10px 14px}
+
+.hero{background:var(--hero);color:var(--on-hero);border-radius:var(--radius);padding:28px;display:grid;gap:6px}
+.hero .eyebrow{color:var(--on-hero-muted)}
+.big{color:var(--hero-fill, var(--on-hero));font-size:clamp(48px,9vw,88px);font-weight:900;letter-spacing:-.045em;line-height:.95;margin-top:6px}
+.of{color:var(--on-hero-muted);font-size:16px;font-weight:500;margin-top:10px;display:flex;gap:6px 18px;flex-wrap:wrap}
+.of strong{color:var(--on-hero);font-weight:800}
+.meter{position:relative;height:14px;background:var(--hero-line);border-radius:999px;margin-top:22px}
+.meter i{position:absolute;inset:0 auto 0 0;background:var(--hero-fill, var(--brand));border-radius:999px}
+.meter .pace{position:absolute;top:-6px;bottom:-6px;width:4px;margin-left:-1px;background:var(--hero);box-shadow:0 0 0 1px var(--on-hero)}
+.meter .th{position:absolute;top:18px;transform:translateX(-50%);font-size:11px;font-weight:700;color:var(--on-hero-muted);white-space:nowrap}
+.meter .th::before{content:"";position:absolute;left:50%;top:-22px;width:2px;height:14px;background:var(--accent);transform:translateX(-50%);opacity:.9}
+.meter .th.hit{color:var(--accent)}
+.meter-legend{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--on-hero-muted);margin-top:34px}
+.meter-legend b{display:inline-block;width:4px;height:10px;background:var(--hero);box-shadow:0 0 0 1px var(--on-hero);vertical-align:-1px;margin-right:6px}
+.meter-legend em{display:inline-block;width:2px;height:10px;background:var(--accent);vertical-align:-1px;margin-right:6px}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;display:grid;gap:2px}
+.stat strong{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.stat span{color:var(--muted);font-size:13px}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px;display:grid;gap:18px;min-width:0;align-content:start}
+.panel-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.panel-head h2{font-size:19px;font-weight:800;letter-spacing:-.01em}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:16px;height:0;border-top:3px solid var(--brand)}
+.sw.budget{border-color:var(--fg)}
+.sw.pace{border-top:2px dashed var(--muted)}
+.sw.proj{border-top:2px dotted var(--brand)}
+.chart{position:relative;width:100%}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart text{fill:var(--muted);font-family:var(--font);font-size:12px}
+.chart text.strong{fill:var(--fg);font-weight:700}
+.tip{position:absolute;pointer-events:none;background:var(--fg);color:var(--surface);font-size:12px;padding:6px 10px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-100%);margin-top:-10px}
+
+.filters{display:flex;gap:8px;flex-wrap:wrap}
+.filter{font:inherit;font-size:13px;font-weight:600;padding:7px 12px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;border-radius:999px;display:inline-flex;gap:8px;align-items:baseline}
+.filter small{color:var(--muted);font-weight:600;font-size:12px}
+.filter:hover{border-color:var(--muted)}
+.filter[aria-pressed="true"]{background:var(--fg);color:var(--surface);border-color:var(--fg)}
+.filter[aria-pressed="true"] small{color:inherit;opacity:.75}
+.filter:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.focus{display:flex;gap:10px 20px;flex-wrap:wrap;align-items:baseline;padding:14px 16px;background:var(--brand-soft);border-radius:calc(var(--radius) - 4px);color:var(--brand-deep)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .focus{background:var(--grid);color:var(--fg)}}
+:root[data-theme="dark"] .focus{background:var(--grid);color:var(--fg)}
+.focus strong{font-size:16px}
+.focus span{font-size:14px}
+.chip{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border:1px solid currentColor;border-radius:999px;opacity:.75}
+.table-wrap{overflow-x:auto;margin:0 -4px}
+table{width:100%;border-collapse:collapse;min-width:560px}
+th,td{text-align:left;padding:12px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td.num,th.num{text-align:right;white-space:nowrap}
+td.date{white-space:nowrap;color:var(--muted);width:72px}
+tfoot td{font-weight:800;border-bottom:0}
+.proj-tag{font-size:13px;color:var(--muted)}
+tr.month td{padding:22px 4px 8px;border-bottom:2px solid var(--fg);font-weight:800;font-size:14px}
+tr.month td.num{font-weight:700;color:var(--muted)}
+tbody:first-of-type tr.month td{padding-top:6px}
+.cost{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:999px;background:var(--brand-soft);color:var(--brand-deep)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cost{background:var(--grid);color:var(--fg)}}
+:root[data-theme="dark"] .cost{background:var(--grid);color:var(--fg)}
+.empty{color:var(--muted);padding:20px 4px}
+
+.scope-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.scope h3{margin:0 0 10px;font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.scope ul{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.scope li{display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:start;font-size:15px}
+.scope li::before{content:"";width:18px;height:18px;margin-top:2px;border-radius:50%;background:var(--brand-soft) no-repeat center/10px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M1.5 5.2 4 7.5 8.5 2.5' fill='none' stroke='%23131C24' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+.scope .out li::before{background-color:var(--grid);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M2.5 2.5 7.5 7.5M7.5 2.5 2.5 7.5' fill='none' stroke='%235D6670' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E")}
+.scope .out li{color:var(--muted)}
+.scope-note{margin:0;font-size:14px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+@media (max-width:640px){.scope-grid{grid-template-columns:1fr}}
+
+footer{display:grid;gap:14px;color:var(--muted);font-size:13px;padding-top:12px;border-top:1px solid var(--line);margin-top:8px}
+.foot-row{display:flex;justify-content:space-between;align-items:center;gap:10px 24px;flex-wrap:wrap}
+.foot-studio{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.foot-studio img{width:64px;height:auto;display:block}
+footer a{color:var(--fg);font-weight:700;text-decoration:none;border-bottom:1px solid var(--line)}
+footer a:hover,footer a:focus-visible{border-color:var(--fg);outline:none}
+.yukon-link{display:block;line-height:0}
+.yukon-link:focus-visible{outline:2px solid var(--fg);outline-offset:3px}
+
+@media (max-width:640px){
+  .stats{grid-template-columns:1fr}
+  .stat{grid-template-columns:1fr auto;align-items:baseline;gap:2px 12px}
+  .stat > span:first-child{grid-column:1}.stat strong{grid-column:2;grid-row:1 / span 2;text-align:right}
+}
+@media (max-width:600px){.table-wrap{margin:0;overflow-x:clip}table{min-width:0;table-layout:fixed}th:nth-child(1),td.date{width:52px;padding-right:6px}th:nth-child(3){width:44px}th:nth-child(4){width:64px}td:nth-child(2){overflow-wrap:anywhere;hyphens:auto}th,td{font-size:14px}tr.month td:first-child{white-space:nowrap}}
+@media (max-width:480px){.hero{padding:22px}.panel{padding:18px}}
+@media (prefers-reduced-motion:no-preference){.meter i{transition:width .6s ease}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="client">
+      <div class="client-mark" id="clientMark"><span class="client-name" id="clientName">Laden</span></div>
+    </div>
+    <div class="by">
+      <a class="yukon-link" href="https://www.studioyukon.com" target="_blank" rel="noopener" aria-label="Studio Yukon website"><img class="yukon" src="/assets/studio-yukon.svg" alt="Studio Yukon" width="84" height="33"></a>
+      <a class="logout" href="/logout">Uitloggen</a>
+    </div>
+  </header>
+
+  <p class="notice" id="notice" hidden></p>
+
+  <section class="hero" aria-labelledby="remainLabel">
+    <div>
+      <div class="eyebrow" id="remainLabel">Resterend budget<span id="asOf"></span></div>
+      <div class="big" id="remain">€ 0</div>
+      <div class="of"><span id="hoursLeft"></span><span id="remainOf"></span></div>
+      <div class="meter" id="meter" aria-hidden="true"><i id="meterFill"></i><span class="pace" id="meterPace"></span></div>
+      <div class="meter-legend"><span><b></b>Verwacht verbruik op schema</span><span><em></em>Je krijgt een mail bij 50%, 20% en 10% resterend</span></div>
+    </div>
+  </section>
+
+  <section class="stats" aria-label="Kerncijfers">
+    <div class="stat"><span>Budget op rond</span><strong id="sRun">Nog niet</strong><span id="sRunE"></span></div>
+    <div class="stat"><span>Deze maand</span><strong id="sMonth">0 u</strong><span id="sMonthE"></span></div>
+    <div class="stat"><span>Gemiddeld per maand</span><strong id="sAvg">0 u</strong><span id="sAvgE"></span></div>
+  </section>
+
+  <section class="panel" aria-labelledby="tlTitle">
+    <div class="panel-head">
+      <div><div class="eyebrow">Retainerjaar</div><h2 id="tlTitle">Budget door het jaar</h2></div>
+      <div class="legend">
+        <span><i class="sw budget"></i>Gestort</span>
+        <span><i class="sw"></i>Besteed</span>
+        <span><i class="sw pace"></i>Op schema</span>
+        <span><i class="sw proj"></i>Verwachting</span>
+      </div>
+    </div>
+    <div class="chart" id="timeline"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="lTitle">
+    <div class="panel-head">
+      <div><div class="eyebrow">Logboek</div><h2 id="lTitle">Alle geschreven uren</h2></div>
+      <span class="eyebrow" id="filterHint">Kies een project om te filteren</span>
+    </div>
+    <div class="filters" id="filters" role="group" aria-label="Filter op project"></div>
+    <div class="focus" id="focus" hidden></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Datum</th><th>Werkzaamheden</th><th class="num">Uren</th><th class="num">Bedrag</th></tr></thead>
+        <tfoot><tr><td colspan="2" id="totLabel">Totaal</td><td class="num" id="totH"></td><td class="num" id="totE"></td></tr></tfoot>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel scope" id="scope" aria-labelledby="sTitle" hidden>
+    <div class="panel-head">
+      <div><div class="eyebrow">Afspraken</div><h2 id="sTitle">Wat valt onder de retainer</h2></div>
+    </div>
+    <div class="scope-grid">
+      <div><h3>Valt eronder</h3><ul id="scopeIn"></ul></div>
+      <div class="out"><h3>Valt erbuiten</h3><ul id="scopeOut"></ul></div>
+    </div>
+    <p class="scope-note" id="scopeNote"></p>
+  </section>
+
+  <footer>
+    <div class="foot-row">
+      <span id="period"></span>
+      <span>Vragen over je uren? Neem contact op met Studio Yukon.</span>
+    </div>
+    <div class="foot-row">
+      <div class="foot-studio">
+        <img src="/assets/studio-yukon.svg" alt="Studio Yukon" width="64" height="25">
+        <span>Gietijzerstraat 50, Utrecht</span>
+        <span>Ma t/m vr, 9:00 tot 17:30</span>
+      </div>
+      <a href="https://www.studioyukon.com" target="_blank" rel="noopener">studioyukon.com ↗</a>
+    </div>
+  </footer>
+</div>
+
+<script type="module">
+import { summarize, byMonth, isCost, THRESHOLDS, DAY, parseDate } from "/assets/retainer.js";
+
+const SVGNS = "http://www.w3.org/2000/svg";
+const TZ = { timeZone: "UTC" };
+const eur = new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
+const num = new Intl.NumberFormat("nl-NL", { maximumFractionDigits: 1 });
+const dLong = new Intl.DateTimeFormat("nl-NL", { day: "numeric", month: "long", year: "numeric", ...TZ });
+const dShort = new Intl.DateTimeFormat("nl-NL", { day: "numeric", month: "short", ...TZ });
+const mShort = new Intl.DateTimeFormat("nl-NL", { month: "short", ...TZ });
+const mLong = new Intl.DateTimeFormat("nl-NL", { month: "long", ...TZ });
+const $ = (id) => document.getElementById(id);
+const hrs = (h) => `${num.format(h)} u`;
+const strip = (s) => s.replace(/\.$/, "");
+
+function el(tag, attrs = {}, parent, text) {
+  const n = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (text != null) n.textContent = text;
+  if (parent) parent.appendChild(n);
+  return n;
+}
+
+async function load() {
+  if (window.PORTAL_DATA) return window.PORTAL_DATA;
+  const slug = location.pathname.split("/").filter(Boolean)[0];
+  const res = await fetch(`/data/${slug}.json`, { credentials: "same-origin", cache: "no-store" });
+  if (res.status === 401) { location.href = "/login"; throw new Error("Je sessie is verlopen."); }
+  if (!res.ok) throw new Error(`De gegevens konden niet worden geladen (${res.status}).`);
+  return res.json();
+}
+
+async function applyTheme(d) {
+  const t = d.theme || {};
+  const root = document.documentElement.style;
+  if (t.brand) root.setProperty("--brand", t.brand);
+  if (t.brandDeep) root.setProperty("--brand-deep", t.brandDeep);
+  if (t.brandSoft) root.setProperty("--brand-soft", t.brandSoft);
+  if (t.accent) root.setProperty("--accent", t.accent);
+  if (t.hero) root.setProperty("--hero", t.hero);
+  if (t.heroInk) root.setProperty("--on-hero", t.heroInk);
+  if (t.heroFill) root.setProperty("--hero-fill", t.heroFill);
+  if (t.radius != null) root.setProperty("--radius", `${t.radius}px`);
+  document.title = `${d.client.name} · Retainer`;
+  $("clientName").textContent = d.client.name;
+  // Inline an SVG logo so it can follow the theme colour; anything else as an image.
+  try {
+    let svg = window.PORTAL_LOGO_SVG;
+    if (!svg && t.logo && t.logo.startsWith("/") && t.logo.endsWith(".svg")) {
+      const r = await fetch(t.logo);
+      if (r.ok) svg = await r.text();
+    }
+    if (svg && svg.trim().startsWith("<svg")) {
+      $("clientMark").innerHTML = svg;
+      $("clientMark").querySelector("svg")?.setAttribute("aria-label", d.client.name);
+    } else if (t.logo) {
+      const img = new Image(); img.src = t.logo; img.alt = d.client.name; img.style.height = "26px";
+      $("clientMark").replaceChildren(img);
+    }
+  } catch { /* keep the text name */ }
+}
+
+function renderSummary(M, d) {
+  const r = d.retainer;
+  if (d.example) { $("notice").hidden = false; $("notice").textContent = `Voorbeeldweergave met fictieve uren. Peildatum ${dLong.format(M.asOf)}.`; }
+
+  const stand = parseDate(d.example ? (d.asOf || d.updated) : (d.updated || d.asOf || M.asOf.toISOString().slice(0, 10)));
+  $("asOf").textContent = ` · stand per ${dLong.format(stand)}`;
+  $("remain").textContent = eur.format(M.remaining);
+  $("hoursLeft").innerHTML = `<strong>≈ ${num.format(Math.floor(M.hoursLeft * 2) / 2)} uur</strong> werk à ${eur.format(r.rate)}`;
+  $("remainOf").textContent = `van ${eur.format(M.budget)} gestort · ${Math.max(0, Math.round(M.pctRemaining))}% over`;
+  const spentPct = M.budget ? Math.min(100, (M.spent / M.budget) * 100) : 0;
+  $("meterFill").style.width = `${spentPct}%`;
+  $("meterPace").style.left = `${M.budget ? Math.min(100, (M.pacePlanned / M.budget) * 100) : 0}%`;
+  for (const t of THRESHOLDS) {
+    const s = document.createElement("span");
+    s.className = "th" + (M.pctRemaining <= t ? " hit" : "");
+    s.style.left = `${100 - t}%`;
+    s.textContent = `${t}%`;
+    $("meter").appendChild(s);
+  }
+
+
+
+  if (M.remaining <= 0) { $("sRun").textContent = "Op"; $("sRunE").textContent = "Vul aan om verder te werken"; }
+  else if (M.runOut && M.runOut <= M.end) { $("sRun").textContent = `${dShort.format(M.runOut)} ${M.runOut.getUTCFullYear()}`; $("sRunE").textContent = "Bij het huidige tempo"; }
+  else if (M.runOut) { $("sRun").textContent = `Na ${dShort.format(M.end)}`; $("sRunE").textContent = "Loopt door tot het einde van de periode"; }
+  else { $("sRun").textContent = "Nog niet"; $("sRunE").textContent = "Er is nog niets verbruikt"; }
+  $("sMonth").textContent = hrs(M.thisMonth.hours);
+  $("sMonthE").textContent = `${eur.format(M.thisMonth.hours * r.rate)} in ${mLong.format(M.thisMonth.m)}`;
+  $("sAvg").textContent = hrs(M.avgHours);
+  $("sAvgE").textContent = `${eur.format(M.avgHours * r.rate)} per maand`;
+  $("period").textContent = `Retainerperiode ${dShort.format(M.start)} ${M.start.getUTCFullYear()} tot ${dShort.format(M.end)} ${M.end.getUTCFullYear()} · ${eur.format(r.rate)} per uur`;
+}
+
+const niceStep = (max) => [250, 500, 1000, 2000, 2500, 5000, 10000, 20000, 25000, 50000].find((s) => max / s <= 5) || 100000;
+
+function renderTimeline(M, d) {
+  const host = $("timeline");
+  host.replaceChildren();
+  const W = Math.max(300, host.clientWidth);
+  const narrow = W < 600;
+  const H = narrow ? 240 : 300;
+  const m = { l: narrow ? 44 : 60, r: 16, t: 26, b: 28 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const maxV = Math.max(M.budget, M.spent) * 1.1 || 1000;
+  const step = niceStep(maxV);
+  const yMax = Math.ceil(maxV / step) * step;
+  const x = (t) => m.l + ((t - M.start) / (M.end - M.start)) * iw;
+  const y = (v) => m.t + ih - (Math.min(v, yMax) / yMax) * ih;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `Gestort ${eur.format(M.budget)}, besteed ${eur.format(M.spent)}` }, host);
+
+  for (let v = 0; v <= yMax; v += step) {
+    el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: "var(--grid)", "stroke-width": 1 }, svg);
+    el("text", { x: m.l - 8, y: y(v) + 4, "text-anchor": "end" }, svg, narrow && v >= 1000 ? `€${v / 1000}k` : eur.format(v));
+  }
+  M.months.forEach((mo, i) => {
+    if (narrow && i % 2) return;
+    el("text", { x: x(mo.m) + 2, y: H - 8 }, svg, strip(mShort.format(mo.m)));
+  });
+
+  let bPath = "", level = 0;
+  M.deposits.forEach((dep, i) => {
+    const xd = x(Math.max(dep.d, M.start));
+    bPath += i === 0 ? `M${xd},${y(dep.amount)}` : `H${xd}V${y(level + dep.amount)}`;
+    level += dep.amount;
+  });
+  if (bPath) bPath += `H${x(M.end)}`;
+
+  el("line", { x1: x(M.start), y1: y(0), x2: x(M.end), y2: y(M.budget), stroke: "var(--muted)", "stroke-width": 1.5, "stroke-dasharray": "5 5" }, svg);
+
+  const pts = [[x(M.start), y(0)], ...M.entries.map((e) => [x(e.d), y(e.cum)]), [x(M.asOf), y(M.spent)]];
+  const line = pts.map((p, i) => `${i ? "L" : "M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join("");
+  el("path", { d: `${line}L${x(M.asOf)},${y(0)}Z`, fill: "var(--brand-soft)", "fill-opacity": 0.75, stroke: "none" }, svg);
+
+  if (M.burnPerDay > 0 && M.remaining > 0) {
+    const endD = M.runOut && M.runOut < M.end ? M.runOut : M.end;
+    const endV = M.spent + M.burnPerDay * ((endD - M.asOf) / DAY);
+    el("line", { x1: x(M.asOf), y1: y(M.spent), x2: x(endD), y2: y(endV), stroke: "var(--brand)", "stroke-width": 2, "stroke-dasharray": "2 4", "stroke-linecap": "round" }, svg);
+    if (M.runOut && M.runOut < M.end) {
+      el("circle", { cx: x(M.runOut), cy: y(M.budget), r: 4.5, fill: "var(--surface)", stroke: "var(--accent)", "stroke-width": 2 }, svg);
+      const nearEnd = x(M.runOut) > W - 130;
+      el("text", { x: x(M.runOut) + (nearEnd ? -8 : 8), y: y(M.budget) + 18, "text-anchor": nearEnd ? "end" : "start", class: "strong" }, svg, `op rond ${dShort.format(M.runOut)}`);
+    }
+  }
+  el("path", { d: bPath, fill: "none", stroke: "var(--fg)", "stroke-width": 2 }, svg);
+  el("path", { d: line, fill: "none", stroke: "var(--brand)", "stroke-width": 2.5, "stroke-linejoin": "round" }, svg);
+
+  level = 0;
+  M.deposits.forEach((dep, i) => {
+    level += dep.amount;
+    const cx = x(Math.max(dep.d, M.start));
+    el("circle", { cx, cy: y(level), r: 3.5, fill: "var(--fg)" }, svg);
+    el("text", { x: cx + 6, y: y(level) - 8, class: "strong" }, svg, i === 0 ? (narrow ? "start" : `${eur.format(dep.amount)} start`) : `+${eur.format(dep.amount)}`);
+  });
+
+  el("line", { x1: x(M.asOf), x2: x(M.asOf), y1: m.t - 8, y2: y(0), stroke: "var(--fg)", "stroke-width": 1 }, svg);
+  el("text", { x: x(M.asOf), y: m.t - 12, "text-anchor": "middle", class: "strong" }, svg, d.example ? "peildatum" : "vandaag");
+  el("circle", { cx: x(M.asOf), cy: y(M.spent), r: 5, fill: "var(--brand)", stroke: "var(--surface)", "stroke-width": 2 }, svg);
+
+  const tip = document.createElement("div");
+  tip.className = "tip"; tip.hidden = true; host.appendChild(tip);
+  const guide = el("line", { y1: m.t, y2: y(0), stroke: "var(--muted)", "stroke-width": 1, opacity: 0 }, svg);
+  const hit = el("rect", { x: m.l, y: m.t, width: iw, height: ih, fill: "transparent" }, svg);
+  hit.addEventListener("pointermove", (ev) => {
+    const rect = svg.getBoundingClientRect();
+    const px = ((ev.clientX - rect.left) / rect.width) * W;
+    const t = new Date(M.start.getTime() + ((px - m.l) / iw) * (M.end - M.start));
+    if (t > M.asOf || t < M.start) { tip.hidden = true; guide.setAttribute("opacity", 0); return; }
+    const spent = M.entries.filter((e) => e.d <= t).reduce((s, e) => s + e.euro, 0);
+    const budget = M.deposits.filter((x) => x.d <= t).reduce((s, x) => s + x.amount, 0);
+    guide.setAttribute("x1", px); guide.setAttribute("x2", px); guide.setAttribute("opacity", 1);
+    tip.hidden = false;
+    tip.style.left = `${(px / W) * 100}%`;
+    tip.style.top = `${(y(spent) / H) * 100}%`;
+    tip.textContent = `${dShort.format(t)}: ${eur.format(spent)} besteed van ${eur.format(budget)}`;
+  });
+  hit.addEventListener("pointerleave", () => { tip.hidden = true; guide.setAttribute("opacity", 0); });
+}
+
+let filter = null;
+function renderLog(M) {
+  const projects = M.projects.filter((p) => p.hours > 0).sort((a, b) => b.hours - a.hours);
+  const f = $("filters");
+  f.replaceChildren();
+  const useFilter = projects.length >= 2;
+  f.hidden = !useFilter; $("filterHint").hidden = !useFilter;
+  if (!useFilter) filter = null;
+  for (const o of [{ id: null, name: "Alles", hours: M.hours }, ...projects]) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "filter";
+    b.innerHTML = `<span></span><small>${hrs(o.hours)}</small>`;
+    b.firstChild.textContent = o.name;
+    b.setAttribute("aria-pressed", String(filter === o.id));
+    b.addEventListener("click", () => { filter = o.id; renderLog(M); });
+    f.appendChild(b);
+  }
+
+  const focus = $("focus");
+  const p = projects.find((x) => x.id === filter);
+  focus.hidden = !p;
+  if (p) {
+    focus.innerHTML = `<strong></strong>${p.status ? `<span class="chip"></span>` : ""}<span>${hrs(p.hours)} · ${eur.format(p.euro)} · ${Math.round((p.hours / M.hours) * 100)}% van alle uren · ${p.entries} ${p.entries === 1 ? "regel" : "regels"}</span>`;
+    focus.querySelector("strong").textContent = p.name;
+    if (p.status) focus.querySelector(".chip").textContent = p.status;
+  }
+
+  const names = Object.fromEntries(M.projects.map((x) => [x.id, x.name]));
+  const rows = M.entries.filter((e) => !filter || e.project === filter);
+  const table = document.querySelector(".table-wrap table");
+  table.querySelectorAll("tbody").forEach((b) => b.remove());
+  const tfoot = table.querySelector("tfoot");
+  if (!rows.length) {
+    const tb = document.createElement("tbody");
+    tb.innerHTML = `<tr><td colspan="4" class="empty">Nog geen uren geschreven. Zodra er gewerkt is, staat hier elke regel met datum, project en bedrag.</td></tr>`;
+    table.insertBefore(tb, tfoot);
+  }
+  for (const g of byMonth(rows)) {
+    const tb = document.createElement("tbody");
+    const head = document.createElement("tr");
+    head.className = "month";
+    head.innerHTML = `<td colspan="2"></td><td class="num">${num.format(g.hours)}</td><td class="num">${eur.format(g.euro)}</td>`;
+    const label = mLong.format(g.m);
+    head.firstChild.textContent = `${label.charAt(0).toUpperCase()}${label.slice(1)} ${g.m.getUTCFullYear()}`;
+    tb.appendChild(head);
+    for (const e of g.entries) {
+      const tr = document.createElement("tr");
+      const cost = isCost(e);
+      tr.innerHTML = `<td class="date">${dShort.format(e.d)}</td><td><div></div><div class="proj-tag"></div></td><td class="num">${cost ? '<span class="cost">Kosten</span>' : num.format(e.hours)}</td><td class="num">${eur.format(e.euro)}</td>`;
+      tr.children[1].children[0].textContent = e.note || "";
+      tr.children[1].children[1].textContent = e.project ? (names[e.project] || e.project) : "Vaste kosten";
+      tb.appendChild(tr);
+    }
+    table.insertBefore(tb, tfoot);
+  }
+  $("totLabel").textContent = p ? `Totaal ${p.name}` : "Totaal";
+  $("totH").textContent = num.format(rows.reduce((s, e) => s + e.hours, 0));
+  $("totE").textContent = eur.format(rows.reduce((s, e) => s + e.euro, 0));
+}
+
+function renderScope(d) {
+  const sc = d.retainer?.scope;
+  if (!sc || (!sc.included?.length && !sc.excluded?.length)) return;
+  const fill = (id, items = []) => $(id).replaceChildren(...items.map((t) => Object.assign(document.createElement("li"), { textContent: t })));
+  fill("scopeIn", sc.included); fill("scopeOut", sc.excluded);
+  $("scopeNote").textContent = sc.note || "";
+  $("scopeNote").hidden = !sc.note;
+  $("scope").hidden = false;
+}
+
+load().then(async (d) => {
+  await applyTheme(d);
+  const M = summarize(d);
+  renderSummary(M, d);
+  renderScope(d);
+  renderTimeline(M, d);
+  renderLog(M);
+  let raf;
+  new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => renderTimeline(M, d)); }).observe($("timeline"));
+}).catch((err) => {
+  $("clientName").textContent = "Dashboard";
+  $("notice").hidden = false;
+  $("notice").textContent = `${err.message} Ververs de pagina of neem contact op met Studio Yukon.`;
+});
+</script>
+</body>
+</html>

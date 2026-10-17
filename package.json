@@ -1,0 +1,16 @@
+{
+  "name": "yukon-portal",
+  "private": true,
+  "type": "module",
+  "description": "Studio Yukon retainer portal on Netlify",
+  "scripts": {
+    "portal": "node scripts/portal.mjs",
+    "validate": "node scripts/portal.mjs validate"
+  },
+  "dependencies": {
+    "@netlify/blobs": "11.1.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
