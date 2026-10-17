@@ -137,9 +137,48 @@ footer a:hover,footer a:focus-visible{border-color:var(--fg);outline:none}
 @media (max-width:600px){.table-wrap{margin:0;overflow-x:clip}table{min-width:0;table-layout:fixed}th:nth-child(1),td.date{width:52px;padding-right:6px}th:nth-child(3){width:44px}th:nth-child(4){width:64px}td:nth-child(2){overflow-wrap:anywhere;hyphens:auto}th,td{font-size:14px}tr.month td:first-child{white-space:nowrap}}
 @media (max-width:480px){.hero{padding:22px}.panel{padding:18px}}
 @media (prefers-reduced-motion:no-preference){.meter i{transition:width .6s ease}}
+
+/* One-time greeting after login */
+.hello{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:var(--brand-deep);color:var(--hero-fill,#CBF6B0);cursor:pointer;transition:opacity .7s cubic-bezier(.4,0,.2,1),visibility 0s linear .7s}
+.hello.out{opacity:0;visibility:hidden}
+.hello h2{margin:0;padding:0 24px;font-family:var(--font);font-weight:900;font-size:clamp(44px,11vw,128px);letter-spacing:-.045em;line-height:1;text-align:center;display:flex;flex-wrap:wrap;justify-content:center;column-gap:.24em}
+.hello .w{display:inline-block;overflow:hidden;padding:0 .1em .24em;margin:0 -.1em -.24em}
+.hello .w>span{display:inline-block}
+@media (prefers-reduced-motion:no-preference){
+  .hello .w>span{transform:translateY(105%);animation:hello-up .9s cubic-bezier(.2,.8,.2,1) forwards}
+  .hello .w:nth-child(2)>span{animation-delay:.12s}
+  .hello.out h2{transform:scale(1.04);transition:transform .7s cubic-bezier(.4,0,.2,1)}
+}
+@keyframes hello-up{to{transform:none}}
 </style>
 </head>
 <body>
+<script>
+// Shown once, right after logging in with a link: the login sets a short cookie with the first name.
+(function () {
+  var m = document.cookie.match(/(?:^|; )yk_hello=([^;]*)/);
+  if (!m) return;
+  document.cookie = "yk_hello=; Path=/; Max-Age=0; Secure; SameSite=Lax";
+  var name = "";
+  try { name = decodeURIComponent(m[1]); } catch (e) {}
+  if (name === "-") name = "";
+  var o = document.createElement("div");
+  o.className = "hello";
+  var h = document.createElement("h2");
+  (name ? ["Hey", name] : ["Welkom"]).forEach(function (t) {
+    var w = document.createElement("span"); w.className = "w";
+    var i = document.createElement("span"); i.textContent = t;
+    w.appendChild(i); h.appendChild(w);
+  });
+  o.appendChild(h);
+  document.body.appendChild(o);
+  var done = false;
+  function hide() { if (done) return; done = true; o.classList.add("out"); setTimeout(function () { o.remove(); }, 800); }
+  o.addEventListener("click", hide);
+  addEventListener("keydown", hide, { once: true });
+  setTimeout(hide, 1900);
+})();
+</script>
 <div class="wrap">
   <header>
     <div class="client">

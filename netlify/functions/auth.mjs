@@ -71,10 +71,13 @@ export default async (req) => {
     await store("login-tokens").delete(sha256(t));
     const user = findUser(rec.email);
     if (!user) return expired();
-    return new Response(null, {
-      status: 303,
-      headers: { Location: safeNext(rec.next, user) || homeFor(user), "Set-Cookie": sessionCookie(user, secret), "Cache-Control": "no-store" },
-    });
+    const headers = new Headers({ Location: safeNext(rec.next, user) || homeFor(user), "Cache-Control": "no-store" });
+    headers.append("Set-Cookie", sessionCookie(user, secret));
+    // One-time greeting on the dashboard ("Hey Aafke"). Readable by the page, holds only a first name,
+    // lives two minutes and is cleared as soon as the dashboard has shown it.
+    const first = String(user.name || "").trim().split(/\s+/)[0] || "";
+    headers.append("Set-Cookie", `yk_hello=${encodeURIComponent(first || "-")}; Path=/; Max-Age=120; Secure; SameSite=Lax`);
+    return new Response(null, { status: 303, headers });
   }
 
   return new Response("Not found", { status: 404 });
