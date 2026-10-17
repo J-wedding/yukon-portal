@@ -3,7 +3,7 @@
 // Fallback: email + password, for accounts that have one (usually only admins).
 // The answer is the same whether or not the address is known, so nobody can probe for clients.
 import crypto from "node:crypto";
-import { findUser, verifyPassword, sessionCookie, homeFor, safeNext, sha256, clientBrand } from "../../lib/server.mjs";
+import { findUser, verifyPassword, sessionCookie, homeFor, safeNext, sha256, clientBrand, firstName } from "../../lib/server.mjs";
 import { store } from "../../lib/stores.mjs";
 import { sendMail } from "../../lib/mail.mjs";
 import { buildLoginEmail } from "../../lib/login-email.mjs";
@@ -65,7 +65,7 @@ export default async (req) => {
     const mail = buildLoginEmail({
       link: `${base}/auth?t=${token}`,
       clientName: brand?.name || null,
-      firstName: (user.name || "").split(" ")[0],
+      firstName: firstName(user),
       logoUrl: `${base}/assets/studio-yukon.png`,
       minutes: LINK_MINUTES,
     });

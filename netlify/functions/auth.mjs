@@ -1,7 +1,7 @@
 // GET  /auth?t=...   shows a confirm page. It does NOT log in, so mail scanners
 //                    that open links (Microsoft Defender, Mimecast) cannot use up the link.
 // POST /api/auth     the "Inloggen" button. Uses the link once and sets the session.
-import { findUser, sessionCookie, homeFor, safeNext, sha256, clientBrand, escapeHTML as h } from "../../lib/server.mjs";
+import { findUser, firstName, sessionCookie, homeFor, safeNext, sha256, clientBrand, escapeHTML as h } from "../../lib/server.mjs";
 import { store } from "../../lib/stores.mjs";
 
 const html = (status, body) => new Response(body, { status, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "Referrer-Policy": "no-referrer" } });
@@ -75,7 +75,7 @@ export default async (req) => {
     headers.append("Set-Cookie", sessionCookie(user, secret));
     // One-time greeting on the dashboard ("Hey Aafke"). Readable by the page, holds only a first name,
     // lives two minutes and is cleared as soon as the dashboard has shown it.
-    const first = String(user.name || "").trim().split(/\s+/)[0] || "";
+    const first = firstName(user);
     headers.append("Set-Cookie", `yk_hello=${encodeURIComponent(first || "-")}; Path=/; Max-Age=120; Secure; SameSite=Lax`);
     return new Response(null, { status: 303, headers });
   }

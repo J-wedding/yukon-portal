@@ -8,7 +8,7 @@
 //      ALERTS_DRY_RUN=1 to log instead of sending.
 import { getStore } from "@netlify/blobs";
 import { summarize, pendingAlerts } from "../../public/assets/retainer.js";
-import { listClients, readJSON } from "../../lib/server.mjs";
+import { listClients, readJSON, firstName } from "../../lib/server.mjs";
 import { buildAlertEmail } from "../../lib/alert-email.mjs";
 import { sendMail, mailConfigured } from "../../lib/mail.mjs";
 
@@ -43,7 +43,7 @@ export default async () => {
       for (const u of contacts) {
         const mail = buildAlertEmail({
           summary, threshold: send,
-          firstName: (u.name || "").split(" ")[0],
+          firstName: firstName(u),
           portalUrl: `${base}/${slug}/`,
           logoUrl: `${base}/assets/studio-yukon.png`,
           signature: process.env.ALERT_SIGNATURE || "Jordy Wedding",
