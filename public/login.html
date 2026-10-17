@@ -49,7 +49,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 var(--display);
 .client-logo{color:var(--logo);display:flex;align-items:center}
 .client-logo svg{height:clamp(32px,2.4vw,44px);width:auto;display:block}
 .logos .with{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-h1{margin:0;font-weight:900;font-size:clamp(44px,7.4vw,112px);line-height:.92;letter-spacing:-.05em;text-wrap:balance}
+h1{margin:0;font-weight:900;font-size:clamp(42px,5.8vw,84px);line-height:.95;letter-spacing:-.048em;text-wrap:balance}
 .lede{margin:0;color:var(--muted);font-size:18px;max-width:46ch}
 
 .receipt{font-family:var(--mono);font-size:13px;line-height:1.5;border-top:1px dashed var(--line);border-bottom:1px dashed var(--line);padding:14px 0;display:grid;gap:4px;max-width:420px;font-variant-numeric:tabular-nums}
@@ -198,7 +198,11 @@ input:focus{outline:none;border-color:var(--fg);box-shadow:0 0 0 1px var(--fg)}
   $("modeSwitch").hidden = mode !== "password";
 
   $("next").value = next; $("resendNext").value = next;
-  $("email").value = email; $("resendEmail").value = email;
+  // Remember the address on this device, so logging in again after 14 days is one click.
+  const KEY = "yk_email";
+  let remembered = "";
+  try { remembered = localStorage.getItem(KEY) || ""; } catch {}
+  $("email").value = email || remembered; $("resendEmail").value = email || remembered;
   $("other").href = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
 
   const ERR = {
@@ -248,6 +252,7 @@ input:focus{outline:none;border-color:var(--fg);box-shadow:0 0 0 1px var(--fg)}
       return;
     }
     if (window.PORTAL_DEMO) { ev.preventDefault(); window.PORTAL_DEMO(e, mode); return; }
+    try { localStorage.setItem(KEY, e.toLowerCase()); } catch {}
     $("submit").disabled = true;
     $("submitLabel").textContent = mode === "password" ? "Bezig met inloggen" : "Link wordt verstuurd";
   });

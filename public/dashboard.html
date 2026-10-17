@@ -68,6 +68,10 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px 24
 
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px;display:grid;gap:18px;min-width:0;align-content:start}
 .panel-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.log-tools{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.export{font:inherit;font-size:13px;font-weight:700;color:var(--fg);border:1px solid var(--line);padding:7px 14px;border-radius:999px;background:var(--surface);cursor:pointer}
+.export:hover{border-color:var(--fg)}
+.export:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 .panel-head h2{font-size:19px;font-weight:800;letter-spacing:-.01em}
 .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
@@ -224,7 +228,7 @@ footer a:hover,footer a:focus-visible{border-color:var(--fg);outline:none}
   <section class="panel" aria-labelledby="lTitle">
     <div class="panel-head">
       <div><div class="eyebrow">Logboek</div><h2 id="lTitle">Alle geschreven uren</h2></div>
-      <span class="eyebrow" id="filterHint">Kies een project om te filteren</span>
+      <div class="log-tools"><span class="eyebrow" id="filterHint">Kies een project om te filteren</span><button type="button" class="export" id="export">Download als Excel (CSV)</button></div>
     </div>
     <div class="filters" id="filters" role="group" aria-label="Filter op project"></div>
     <div class="focus" id="focus" hidden></div>
@@ -509,6 +513,26 @@ function renderLog(M) {
   $("totE").textContent = eur.format(rows.reduce((s, e) => s + e.euro, 0));
 }
 
+// CSV for Excel (Dutch locale: semicolons, decimal comma, UTF-8 with BOM). Follows the active project filter.
+function exportCSV(M, d) {
+  const names = Object.fromEntries(M.projects.map((x) => [x.id, x.name]));
+  const rows = M.entries.filter((e) => !filter || e.project === filter);
+  const q = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const n2 = (v) => (Math.round(v * 100) / 100).toFixed(2).replace(".", ",");
+  const lines = [["Datum", "Project", "Werkzaamheden", "Soort", "Uren", "Bedrag (EUR)"].map(q).join(";")];
+  for (const e of [...rows].sort((a, b) => a.d - b.d)) {
+    lines.push([e.d.toISOString().slice(0, 10), e.project ? (names[e.project] || e.project) : "", e.note || "", isCost(e) ? "Kosten" : "Uren", isCost(e) ? "" : n2(e.hours), n2(e.euro)].map(q).join(";"));
+  }
+  lines.push(["", "", "Totaal", "", n2(rows.reduce((s, e) => s + e.hours, 0)), n2(rows.reduce((s, e) => s + e.euro, 0))].map(q).join(";"));
+  const blob = new Blob(["\ufeff" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  const slug = d.client.slug || "retainer";
+  a.href = URL.createObjectURL(blob);
+  a.download = `${slug}-logboek${filter ? "-" + filter : ""}-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
 function renderScope(d) {
   const sc = d.retainer?.scope;
   if (!sc || (!sc.included?.length && !sc.excluded?.length)) return;
@@ -526,6 +550,8 @@ load().then(async (d) => {
   renderScope(d);
   renderTimeline(M, d);
   renderLog(M);
+  $("export").hidden = !M.entries.length;
+  $("export").addEventListener("click", () => exportCSV(M, d));
   let raf;
   new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => renderTimeline(M, d)); }).observe($("timeline"));
 }).catch((err) => {
