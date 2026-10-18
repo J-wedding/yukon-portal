@@ -1,9 +1,8 @@
-// GET  /auth?t=...   shows a confirm page. It does NOT log in, so mail scanners
-//                    that open links (Microsoft Defender, Mimecast) cannot use up the link.
-// POST /api/auth     the "Inloggen" button. Uses the link once and sets the session.
+// GET /auth?t=...  logs in with the link from the email (valid 15 minutes, a few uses, see MAX_USES).
 import { findUser, firstName, sessionCookie, homeFor, safeNext, sha256, clientBrand, escapeHTML as h } from "../../lib/server.mjs";
 import { store } from "../../lib/stores.mjs";
 
+const MAX_USES = 5;
 const html = (status, body) => new Response(body, { status, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "Referrer-Policy": "no-referrer" } });
 
 function page({ title, lead, form = "", brand }) {
@@ -46,32 +45,21 @@ const expired = () =>
 export default async (req) => {
   const url = new URL(req.url);
 
-  if (req.method === "GET" && url.pathname === "/auth") {
-    const t = url.searchParams.get("t") || "";
-    const rec = await readToken(t);
-    if (!rec) return expired();
-    const user = findUser(rec.email);
-    if (!user) return expired();
-    const brand = user.client ? clientBrand(user.client) : null;
-    return html(200, page({
-      brand,
-      title: brand ? `Inloggen bij ${brand.name}` : "Inloggen",
-      lead: `Je logt in als <strong>${h(user.email)}</strong>.`,
-      form: `<form method="post" action="/api/auth"><input type="hidden" name="t" value="${h(t)}"><button type="submit">Inloggen</button></form>`,
-    }));
-  }
-
-  if (req.method === "POST" && url.pathname === "/api/auth") {
+  // The link logs in straight away. It works up to MAX_USES times within its 15 minutes instead of once,
+  // so a mail scanner that opens it first (Microsoft Defender, Mimecast) does not use it up for the client.
+  // POST /api/auth stays for links sent before this change.
+  if ((req.method === "GET" && url.pathname === "/auth") || (req.method === "POST" && url.pathname === "/api/auth")) {
     const secret = process.env.SESSION_SECRET;
     if (!secret) return new Response("SESSION_SECRET missing", { status: 500 });
-    const form = await req.formData();
-    const t = String(form.get("t") || "");
+    const t = req.method === "GET" ? url.searchParams.get("t") || "" : String((await req.formData()).get("t") || "");
     const rec = await readToken(t);
     if (!rec) return expired();
-    await store("login-tokens").delete(sha256(t));
+    const uses = (rec.uses || 0) + 1;
+    if (uses >= MAX_USES) await store("login-tokens").delete(sha256(t));
+    else await store("login-tokens").setJSON(sha256(t), { ...rec, uses });
     const user = findUser(rec.email);
     if (!user) return expired();
-    const headers = new Headers({ Location: safeNext(rec.next, user) || homeFor(user), "Cache-Control": "no-store" });
+    const headers = new Headers({ Location: safeNext(rec.next, user) || homeFor(user), "Cache-Control": "no-store", "Referrer-Policy": "no-referrer" });
     headers.append("Set-Cookie", sessionCookie(user, secret));
     // One-time greeting on the dashboard ("Hey Aafke"). Readable by the page, holds only a first name,
     // lives two minutes and is cleared as soon as the dashboard has shown it.

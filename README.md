@@ -74,7 +74,7 @@ Or ask Claude: "Zet Vandebron live met startbedrag 5000 per 1 november." The thr
 
 1. Someone opens `portal.studioyukon.com` or their own address, such as `/vandebron/`. Opened via their own address, the login page shows their logo and colours.
 2. They enter their email. If the address is known, a link goes to it. If not, nothing is sent and the page says the same thing, so nobody can find out who your clients are.
-3. The link opens a page with an "Inloggen" button. Only pressing it logs them in, so mail scanners that open links cannot use it up. A link works once, for 15 minutes.
+3. The link logs them in directly. It works for 15 minutes and at most 5 times, so a mail scanner that opens it first (Microsoft Defender, Mimecast) does not use it up.
 4. They stay logged in for 14 days on that device. At most 5 links per address per 15 minutes.
 
 The branded login uses a small public file per client (`public/assets/clients/<slug>.json`, logo and colours only). Anyone who guesses the address can see that this client has a portal with you. If a client should stay confidential: `node scripts/portal.mjs client:set <slug> --branded-login off`.
