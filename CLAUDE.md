@@ -20,6 +20,7 @@ Netlify site where each retainer client logs in with their email and sees their 
 - Log notes are read by the client. Write them in Dutch, short and factual ("Uitwerking key visual", "Correcties na feedbackronde"). No em dashes. No sentence that tacks a clause on with a comma plus "en" or "maar".
 - Commit message: `<client>: <what changed>`, e.g. `vandebron: 2 u social templates (e23)`.
 - Example clients (`"example": true`) never trigger emails. `client:live <slug> --reset` turns an example client into a real one (clears example hours and deposits).
+- Never test the login, alerts or any endpoint with a client's email address. Every request to `/api/login` with a real client address sends that person an email. Test only with Jordy's own admin address, and only when he asks.
 - Slugs are the URL (`/vandebron/`). Lowercase, hyphens only. `admin`, `login`, `logout`, `api`, `data` and `assets` are reserved.
 
 ## Logging from Jordy's notes (the normal way)
