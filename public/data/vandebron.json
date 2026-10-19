@@ -18,7 +18,7 @@
   },
   "example": true,
   "asOf": "2027-02-12",
-  "updated": "2027-02-12",
+  "updated": "2026-10-19",
   "retainer": {
     "label": "Design capaciteit",
     "start": "2026-10-01",
@@ -41,15 +41,14 @@
         "Ontwerp en opmaak binnen de bestaande huisstijl",
         "Aanpassingen, formaten en nieuwe uitingen van bestaand werk",
         "Design-capaciteit naast je in-house team",
-        "Opdrachten tot één werkdag"
+        "Grotere opdrachten in overleg, met vooraf een inschatting in uren"
       ],
       "excluded": [
         "Concept en art direction",
         "Fotografie en video, inclusief edit, grading, soundmix en voice-over",
-        "Motion en animatie",
-        "Opdrachten van meer dan één werkdag"
+        "Motion en animatie"
       ],
-      "note": "Valt een aanvraag erbuiten? Dan krijg je vooraf een aparte offerte met een vaste prijs."
+      "note": "Je hoort altijd vooraf hoeveel uur een opdracht kost. Jullie beslissen of die binnen de retainer valt of als los project."
     }
   },
   "projects": [
