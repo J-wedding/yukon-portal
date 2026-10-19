@@ -16,24 +16,17 @@
     "radius": 14,
     "heroFill": "#CBF6B0"
   },
-  "example": true,
-  "asOf": "2027-02-12",
   "updated": "2026-10-19",
   "retainer": {
     "label": "Design capaciteit",
-    "start": "2026-10-01",
-    "end": "2027-09-30",
+    "start": "2026-10-19",
+    "end": "2027-10-18",
     "rate": 110,
     "deposits": [
       {
-        "date": "2026-10-01",
-        "amount": 5000,
+        "date": "2026-10-19",
+        "amount": 10500,
         "label": "Startbedrag"
-      },
-      {
-        "date": "2027-01-12",
-        "amount": 3000,
-        "label": "Aanvulling"
       }
     ],
     "scope": {
@@ -53,185 +46,16 @@
   },
   "projects": [
     {
-      "id": "slim-laden",
-      "name": "Slim laden, app-onboarding",
-      "status": "Opgeleverd"
-    },
-    {
-      "id": "dynamisch",
-      "name": "Dynamisch contract, campagnevisuals",
-      "status": "Lopend"
-    },
-    {
-      "id": "social",
-      "name": "Social templates",
-      "status": "Lopend"
-    },
-    {
-      "id": "events",
-      "name": "Interne events en presentaties",
-      "status": "Lopend"
-    },
-    {
-      "id": "nieuwsbrief",
-      "name": "Nieuwsbrief template",
-      "status": "Opgeleverd"
-    },
-    {
       "id": "adhoc",
       "name": "Ad hoc aanpassingen",
       "status": "Doorlopend"
+    },
+    {
+      "id": "tov",
+      "name": "Tone of voice deck",
+      "status": "Lopend"
     }
   ],
-  "entries": [
-    {
-      "id": "e1",
-      "date": "2026-10-08",
-      "project": "adhoc",
-      "hours": 2,
-      "note": "Banneraanpassingen Steeds slimmere energie"
-    },
-    {
-      "id": "e2",
-      "date": "2026-10-14",
-      "project": "social",
-      "hours": 4,
-      "note": "Opzet templatesysteem Instagram en LinkedIn"
-    },
-    {
-      "id": "e3",
-      "date": "2026-10-21",
-      "project": "social",
-      "hours": 3.5,
-      "note": "Uitwerking zes templates"
-    },
-    {
-      "id": "e4",
-      "date": "2026-10-29",
-      "project": "events",
-      "hours": 2,
-      "note": "Rollup en schermachtergrond kwartaalmeeting"
-    },
-    {
-      "id": "e5",
-      "date": "2026-11-04",
-      "project": "dynamisch",
-      "hours": 4,
-      "note": "Visuele exploratie dynamisch contract"
-    },
-    {
-      "id": "e6",
-      "date": "2026-11-11",
-      "project": "dynamisch",
-      "hours": 4,
-      "note": "Uitwerking key visual"
-    },
-    {
-      "id": "e7",
-      "date": "2026-11-18",
-      "project": "dynamisch",
-      "hours": 3,
-      "note": "Displayformaten"
-    },
-    {
-      "id": "e8",
-      "date": "2026-11-25",
-      "project": "adhoc",
-      "hours": 1.5,
-      "note": "Correcties na feedbackronde"
-    },
-    {
-      "id": "e9",
-      "date": "2026-12-02",
-      "project": "nieuwsbrief",
-      "hours": 3,
-      "note": "Opzet template"
-    },
-    {
-      "id": "e10",
-      "date": "2026-12-09",
-      "project": "nieuwsbrief",
-      "hours": 2,
-      "note": "Modules en variaties"
-    },
-    {
-      "id": "e11",
-      "date": "2026-12-16",
-      "project": "events",
-      "hours": 3,
-      "note": "Presentatie eindejaarsbijeenkomst"
-    },
-    {
-      "id": "e12",
-      "date": "2026-12-18",
-      "project": "adhoc",
-      "hours": 1,
-      "note": "Spoedaanpassing banner"
-    },
-    {
-      "id": "e13",
-      "date": "2027-01-08",
-      "project": "slim-laden",
-      "hours": 4,
-      "note": "Onboardingflow schetsen"
-    },
-    {
-      "id": "e14",
-      "date": "2027-01-15",
-      "project": "slim-laden",
-      "hours": 4,
-      "note": "Illustraties voor vier schermen"
-    },
-    {
-      "id": "e15",
-      "date": "2027-01-22",
-      "project": "slim-laden",
-      "hours": 3,
-      "note": "Feedback verwerkt"
-    },
-    {
-      "id": "e16",
-      "date": "2027-01-27",
-      "project": "social",
-      "hours": 2,
-      "note": "Templates bijgewerkt voor 2027"
-    },
-    {
-      "id": "e17",
-      "date": "2027-01-29",
-      "project": "adhoc",
-      "hours": 1.5,
-      "note": "Aanpassing banners"
-    },
-    {
-      "id": "e18",
-      "date": "2027-02-03",
-      "project": "dynamisch",
-      "hours": 3.5,
-      "note": "Formaten voorjaarsflight"
-    },
-    {
-      "id": "e19",
-      "date": "2027-02-05",
-      "project": "events",
-      "hours": 2,
-      "note": "Presentatie strategiedag"
-    },
-    {
-      "id": "e20",
-      "date": "2027-02-10",
-      "project": "slim-laden",
-      "hours": 2.5,
-      "note": "Oplevering bronbestanden"
-    },
-    {
-      "id": "e21",
-      "date": "2027-01-20",
-      "kind": "cost",
-      "amount": 120,
-      "project": "slim-laden",
-      "note": "Stocklicentie illustratie"
-    }
-  ],
+  "entries": [],
   "brandedLogin": true
 }

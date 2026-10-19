@@ -322,8 +322,8 @@ const commands = {
     const data = load(a1);
     delete data.example; delete data.asOf;
     if (o["clear-entries"] || o.reset) data.entries = [];
-    if (o.reset) data.retainer.deposits = [];
-    save(data); ok(`${a1} now shows real data${o.reset ? " (log and deposits cleared)" : o["clear-entries"] ? " (log cleared)" : ""}`); report(data);
+    if (o.reset) { data.retainer.deposits = []; data.projects = [{ id: "adhoc", name: "Ad hoc aanpassingen", status: "Doorlopend" }]; }
+    save(data); ok(`${a1} now shows real data${o.reset ? " (log, deposits and example projects cleared)" : o["clear-entries"] ? " (log cleared)" : ""}`); report(data);
   },
 
   scope() {
