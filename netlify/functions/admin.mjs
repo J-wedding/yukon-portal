@@ -28,8 +28,9 @@ export default async (req) => {
     return new Response(mail.html, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" } });
   }
 
-  let store = null;
-  try { store = getStore("retainer-alerts"); } catch {}
+  let store = null, usage = null;
+  try { store = getStore("retainer-alerts"); usage = getStore("portal-usage"); } catch {}
+  const since = (n) => new Date(Date.now() - n * 864e5).toISOString().slice(0, 10);
 
   const rows = [];
   for (const data of clients.sort((a, b) => a.client.name.localeCompare(b.client.name))) {
@@ -37,6 +38,13 @@ export default async (req) => {
     const slug = data.client.slug;
     let alerts = null;
     try { alerts = store ? await store.get(slug, { type: "json" }) : null; } catch {}
+    let use = null;
+    try { use = usage ? await usage.get(slug, { type: "json" }) : null; } catch {}
+    const d30 = Object.entries(use?.days || {}).filter(([d]) => d >= since(30));
+    const views30 = d30.reduce((n, [, v]) => n + v, 0);
+    const usageCell = use?.last
+      ? `<span>${views30}× bekeken</span><small>${d30.length} ${d30.length === 1 ? "dag" : "dagen"} in 30 dagen · laatst ${dShort.format(new Date(use.last))}</small>`
+      : `<span>Nog niet bekeken</span><small>Telt vanaf nu, zonder namen</small>`;
     const contacts = (users.clients?.[slug] || []).map((u) => `${h(u.name || u.email)}${u.notify === false ? " (geen meldingen)" : ""}`).join(", ") || "<em>Nog geen logins</em>";
     const pct = Math.max(0, Math.min(100, m.pctRemaining));
     rows.push(`<article class="row">
@@ -44,6 +52,7 @@ export default async (req) => {
       <div class="bar" title="${pct.toFixed(0)}% over"><i style="width:${pct}%"></i>${THRESHOLDS.map((t) => `<b style="left:${t}%"></b>`).join("")}</div>
       <div class="num"><strong>${eur.format(m.remaining)}</strong><small>van ${eur.format(m.budget)} · ${Math.round(m.pctRemaining)}%</small></div>
       <div class="meta"><span>${STATUS[m.status]}</span><small>${m.runOut ? `Op rond ${dShort.format(m.runOut)}` : "Geen verbruik"}</small></div>
+      <div class="meta">${usageCell}</div>
       <div class="meta"><span>${alerts?.sent?.length ? `Verstuurd: ${alerts.sent.map((x) => x + "%").join(", ")}` : "Nog geen meldingen"}</span><small><a href="/admin?preview=${h(slug)}&t=20">Voorbeeldmail</a></small></div>
     </article>`);
   }
@@ -60,7 +69,7 @@ header{display:flex;justify-content:space-between;align-items:center;gap:16px;fl
 header img{width:120px;display:block}h1{margin:0;font-size:28px;font-weight:800;letter-spacing:-.02em}
 a{color:inherit}.out{font-size:13px;font-weight:700;color:var(--muted);text-decoration:none;border:1px solid var(--line);padding:6px 10px}
 .list{display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
-.row{background:var(--card);display:grid;grid-template-columns:1.4fr 1.2fr .9fr .9fr 1fr;gap:18px;align-items:center;padding:16px 18px}
+.row{background:var(--card);display:grid;grid-template-columns:1.3fr 1.1fr .9fr .9fr .9fr 1fr;gap:18px;align-items:center;padding:16px 18px}
 .row small{display:block;color:var(--muted);font-size:13px}.who a{font-weight:800;font-size:17px;text-decoration:none}
 .tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--line);padding:1px 5px;color:var(--muted)}
 .bar{position:relative;height:10px;background:var(--line)}.bar i{position:absolute;inset:0 auto 0 0;background:var(--fg)}

@@ -56,6 +56,11 @@ function notFound() {
   );
 }
 
+async function sha256hex(s: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", enc.encode(s));
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 export default async (req: Request, context: Context) => {
   const url = new URL(req.url);
   const path = url.pathname;
@@ -93,6 +98,12 @@ export default async (req: Request, context: Context) => {
   if (data) {
     if (!canSee(data[1])) return new Response("Forbidden", { status: 403 });
     const res = await context.next();
+    // Usage counter for /admin: one view per data load, per client, no names. Admin views are skipped.
+    if (!isAdmin && res.ok) {
+      const key = await sha256hex("seen:" + secret);
+      const ping = fetch(new URL("/api/seen", req.url), { method: "POST", headers: { "x-yk-key": key, "content-type": "application/json" }, body: JSON.stringify({ c: data[1] }) }).catch(() => {});
+      (context as any).waitUntil ? (context as any).waitUntil(ping) : await ping;
+    }
     const out = new Response(res.body, res);
     out.headers.set("Cache-Control", "no-store");
     return out;
