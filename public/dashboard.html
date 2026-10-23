@@ -61,7 +61,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px 24
 .meter-legend b{display:inline-block;width:4px;height:10px;background:var(--hero);box-shadow:0 0 0 1px var(--on-hero);vertical-align:-1px;margin-right:6px}
 .meter-legend em{display:inline-block;width:2px;height:10px;background:var(--accent);vertical-align:-1px;margin-right:6px}
 
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;display:grid;gap:2px}
 .stat strong{font-size:24px;font-weight:800;letter-spacing:-.02em}
 .stat span{color:var(--muted);font-size:13px}
@@ -78,7 +78,6 @@ header{display:flex;align-items:center;justify-content:space-between;gap:16px 24
 .sw{width:16px;height:0;border-top:3px solid var(--brand)}
 .sw.budget{border-color:var(--fg)}
 .sw.pace{border-top:2px dashed var(--muted)}
-.sw.proj{border-top:2px dotted var(--brand)}
 .chart{position:relative;width:100%}
 .chart svg{display:block;width:100%;height:auto;overflow:visible}
 .chart text{fill:var(--muted);font-family:var(--font);font-size:12px}
@@ -207,7 +206,6 @@ footer a:hover,footer a:focus-visible{border-color:var(--fg);outline:none}
   </section>
 
   <section class="stats" aria-label="Kerncijfers">
-    <div class="stat"><span>Budget op rond</span><strong id="sRun">Nog niet</strong><span id="sRunE"></span></div>
     <div class="stat"><span>Deze maand</span><strong id="sMonth">0 u</strong><span id="sMonthE"></span></div>
     <div class="stat"><span>Gemiddeld per maand</span><strong id="sAvg">0 u</strong><span id="sAvgE"></span></div>
   </section>
@@ -219,7 +217,6 @@ footer a:hover,footer a:focus-visible{border-color:var(--fg);outline:none}
         <span><i class="sw budget"></i>Gestort</span>
         <span><i class="sw"></i>Besteed</span>
         <span><i class="sw pace"></i>Op schema</span>
-        <span><i class="sw proj"></i>Verwachting</span>
       </div>
     </div>
     <div class="chart" id="timeline"></div>
@@ -351,10 +348,6 @@ function renderSummary(M, d) {
 
 
 
-  if (M.remaining <= 0) { $("sRun").textContent = "Op"; $("sRunE").textContent = "Vul aan om verder te werken"; }
-  else if (M.runOut && M.runOut <= M.end) { $("sRun").textContent = `${dShort.format(M.runOut)} ${M.runOut.getUTCFullYear()}`; $("sRunE").textContent = "Bij het huidige tempo"; }
-  else if (M.runOut) { $("sRun").textContent = `Na ${dShort.format(M.end)}`; $("sRunE").textContent = "Loopt door tot het einde van de periode"; }
-  else { $("sRun").textContent = "Nog niet"; $("sRunE").textContent = "Er is nog niets verbruikt"; }
   if (!M.entries.length) { // go-live day: friendly empty states instead of a row of zeros
     $("sMonth").textContent = "0 u"; $("sMonthE").textContent = "De eerste uren volgen hier";
     $("sAvg").textContent = "Volgt"; $("sAvgE").textContent = "Na de eerste maand werk";
@@ -363,8 +356,8 @@ function renderSummary(M, d) {
   }
   $("sMonth").textContent = hrs(M.thisMonth.hours);
   $("sMonthE").textContent = `${eur.format(M.thisMonth.hours * r.rate)} in ${mLong.format(M.thisMonth.m)}`;
-  $("sAvg").textContent = hrs(M.avgHours);
-  $("sAvgE").textContent = `${eur.format(M.avgHours * r.rate)} per maand`;
+  if (M.forecastReady) { $("sAvg").textContent = hrs(M.avgHours); $("sAvgE").textContent = `${eur.format(M.avgHours * r.rate)} per maand`; }
+  else { $("sAvg").textContent = "Volgt"; $("sAvgE").textContent = "Na de eerste maand werk"; }
   $("period").textContent = `Retainerperiode ${dShort.format(M.start)} ${M.start.getUTCFullYear()} tot ${dShort.format(M.end)} ${M.end.getUTCFullYear()} · ${eur.format(r.rate)} per uur`;
 }
 
@@ -408,16 +401,6 @@ function renderTimeline(M, d) {
   const line = pts.map((p, i) => `${i ? "L" : "M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join("");
   el("path", { d: `${line}L${x(M.asOf)},${y(0)}Z`, fill: "var(--brand-soft)", "fill-opacity": 0.75, stroke: "none" }, svg);
 
-  if (M.burnPerDay > 0 && M.remaining > 0) {
-    const endD = M.runOut && M.runOut < M.end ? M.runOut : M.end;
-    const endV = M.spent + M.burnPerDay * ((endD - M.asOf) / DAY);
-    el("line", { x1: x(M.asOf), y1: y(M.spent), x2: x(endD), y2: y(endV), stroke: "var(--brand)", "stroke-width": 2, "stroke-dasharray": "2 4", "stroke-linecap": "round" }, svg);
-    if (M.runOut && M.runOut < M.end) {
-      el("circle", { cx: x(M.runOut), cy: y(M.budget), r: 4.5, fill: "var(--surface)", stroke: "var(--accent)", "stroke-width": 2 }, svg);
-      const nearEnd = x(M.runOut) > W - 130;
-      el("text", { x: x(M.runOut) + (nearEnd ? -8 : 8), y: y(M.budget) + 18, "text-anchor": nearEnd ? "end" : "start", class: "strong" }, svg, `op rond ${dShort.format(M.runOut)}`);
-    }
-  }
   el("path", { d: bPath, fill: "none", stroke: "var(--fg)", "stroke-width": 2 }, svg);
   el("path", { d: line, fill: "none", stroke: "var(--brand)", "stroke-width": 2.5, "stroke-linejoin": "round" }, svg);
 

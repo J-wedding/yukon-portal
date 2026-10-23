@@ -5,6 +5,7 @@
 
 export const THRESHOLDS = [50, 20, 10]; // percent of budget still remaining
 export const DAY = 86400000;
+const FORECAST_MIN_DAYS = 30;
 
 export function parseDate(s) {
   const [y, m, d] = String(s).split("-").map(Number);
@@ -60,7 +61,9 @@ export function summarize(data, asOfISO) {
   const totalDays = (end - start) / DAY + 1;
   const burnPerDay = spent / elapsedDays;
   const pacePlanned = budget * Math.min(1, elapsedDays / totalDays);
-  const runOut = burnPerDay > 0 && remaining > 0 ? new Date(asOf.getTime() + (remaining / burnPerDay) * DAY) : null;
+  // A pace from the first weeks says nothing (one deliverable can be 10% of a year), so no forecast before day 30.
+  const forecastReady = elapsedDays >= FORECAST_MIN_DAYS;
+  const runOut = forecastReady && burnPerDay > 0 && remaining > 0 ? new Date(asOf.getTime() + (remaining / burnPerDay) * DAY) : null;
 
   const months = [];
   for (let m = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1)); m <= end; m = new Date(Date.UTC(m.getUTCFullYear(), m.getUTCMonth() + 1, 1))) {
@@ -75,13 +78,14 @@ export function summarize(data, asOfISO) {
   const status =
     remaining < 0 ? "over" :
     pctRemaining <= 20 ? "low" :
+    !forecastReady ? "on-track" :
     spent - pacePlanned > budget * 0.08 ? "fast" :
     pacePlanned - spent > budget * 0.08 ? "slow" : "on-track";
 
   return {
     client: data.client, rate: r.rate, start, end, asOf, deposits,
     projects: [...projects.values()], entries, budget, spent, hours, costs, remaining, hoursLeft, pctRemaining,
-    burnPerDay, pacePlanned, runOut, months, thisMonth, avgHours, status,
+    burnPerDay, pacePlanned, runOut, forecastReady, months, thisMonth, avgHours, status,
   };
 }
 
