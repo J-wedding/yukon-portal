@@ -16,7 +16,7 @@
     "radius": 14,
     "heroFill": "#CBF6B0"
   },
-  "updated": "2026-10-19",
+  "updated": "2026-10-23",
   "retainer": {
     "label": "Design capaciteit",
     "start": "2026-10-19",
@@ -56,6 +56,23 @@
       "status": "Lopend"
     }
   ],
-  "entries": [],
+  "entries": [
+    {
+      "id": "e1",
+      "date": "2026-10-22",
+      "project": "tov",
+      "hours": 4,
+      "note": "Opzet templates tone of voice deck",
+      "fp": "77aafd74ef3a2630"
+    },
+    {
+      "id": "e2",
+      "date": "2026-10-23",
+      "project": "tov",
+      "hours": 3,
+      "note": "Uitwerking templates en Google Slides-master",
+      "fp": "4cc2d779cc3d1c8e"
+    }
+  ],
   "brandedLogin": true
 }
