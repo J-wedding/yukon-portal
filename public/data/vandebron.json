@@ -16,7 +16,7 @@
     "radius": 14,
     "heroFill": "#CBF6B0"
   },
-  "updated": "2026-10-23",
+  "updated": "2026-10-30",
   "retainer": {
     "label": "Design capaciteit",
     "start": "2026-10-19",
@@ -72,6 +72,14 @@
       "hours": 3,
       "note": "Uitwerking templates en Google Slides-master",
       "fp": "4cc2d779cc3d1c8e"
+    },
+    {
+      "id": "e3",
+      "date": "2026-10-29",
+      "project": "tov",
+      "hours": 2,
+      "note": "Verwerking feedback templates",
+      "fp": "8ef5b54e824e23c6"
     }
   ],
   "brandedLogin": true
