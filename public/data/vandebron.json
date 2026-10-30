@@ -80,6 +80,14 @@
       "hours": 2,
       "note": "Verwerking feedback templates",
       "fp": "8ef5b54e824e23c6"
+    },
+    {
+      "id": "e4",
+      "date": "2026-10-30",
+      "project": "tov",
+      "hours": 8,
+      "note": "Opbouw volledig deck NL",
+      "fp": "9a512665783fabf4"
     }
   ],
   "brandedLogin": true
