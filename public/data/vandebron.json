@@ -16,7 +16,7 @@
     "radius": 14,
     "heroFill": "#CBF6B0"
   },
-  "updated": "2026-10-30",
+  "updated": "2026-11-16",
   "retainer": {
     "label": "Design capaciteit",
     "start": "2026-10-19",
@@ -88,6 +88,30 @@
       "hours": 8,
       "note": "Opbouw volledig deck NL",
       "fp": "9a512665783fabf4"
+    },
+    {
+      "id": "e5",
+      "date": "2026-11-06",
+      "project": "tov",
+      "hours": 5,
+      "note": "Verwerking feedback Nederlandse versie",
+      "fp": "ac0cc3b4930d9845"
+    },
+    {
+      "id": "e6",
+      "date": "2026-11-08",
+      "project": "tov",
+      "hours": 8,
+      "note": "Opbouw Engelse versie op basis van Engelse brontekst",
+      "fp": "f0e3ebe5899f9b09"
+    },
+    {
+      "id": "e7",
+      "date": "2026-11-09",
+      "project": "tov",
+      "hours": 3,
+      "note": "Controle Engelse versie en hernummering",
+      "fp": "adb12e9c20853603"
     }
   ],
   "brandedLogin": true
