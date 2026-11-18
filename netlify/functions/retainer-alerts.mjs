@@ -46,7 +46,7 @@ export default async () => {
           firstName: firstName(u),
           portalUrl: `${base}/${slug}/`,
           logoUrl: `${base}/assets/studio-yukon.png`,
-          signature: process.env.ALERT_SIGNATURE || "Jordy Wedding",
+          signature: process.env.ALERT_SIGNATURE || "Jordy",
         });
         if (dry) console.log(`[dry run] to ${u.email}: ${mail.subject}`);
         else await sendMail({ to: u.email, bcc: process.env.ALERT_BCC, ...mail });
