@@ -141,6 +141,33 @@ footer a:hover,footer a:focus-visible{border-color:var(--fg);outline:none}
 @media (max-width:480px){.hero{padding:22px}.panel{padding:18px}}
 @media (prefers-reduced-motion:no-preference){.meter i{transition:width .6s ease}}
 
+/* Top-up request */
+.topup{display:flex;align-items:center;gap:10px 18px;flex-wrap:wrap;margin-top:22px;padding-top:18px;border-top:1px solid var(--hero-line)}
+.topup-btn{font:inherit;font-size:14px;font-weight:800;padding:10px 18px;border:0;border-radius:999px;background:var(--on-hero);color:var(--hero);cursor:pointer}
+.topup-btn:hover{opacity:.9}
+.topup-btn:focus-visible{outline:2px solid var(--on-hero);outline-offset:3px}
+.topup-status{font-size:14px;color:var(--on-hero-muted)}
+.topup-status strong{color:var(--on-hero)}
+dialog.tu{border:0;border-radius:var(--radius);padding:0;width:min(460px,calc(100vw - 32px));background:var(--surface);color:var(--fg)}
+dialog.tu::backdrop{background:rgb(0 0 0 / .45)}
+.tu form{padding:26px;display:grid;gap:18px}
+.tu h2{font-size:22px;font-weight:900;letter-spacing:-.02em}
+.tu p{margin:0;color:var(--muted);font-size:14px}
+.tu fieldset{border:0;margin:0;padding:0;display:grid;gap:10px}
+.tu legend,.tu label.lbl{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;padding:0}
+.amounts{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.amounts label{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-weight:700;cursor:pointer}
+.amounts label:has(input:checked){border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
+.amounts input{accent-color:var(--fg);margin:0}
+.tu input[type=number],.tu input[type=text]{font:inherit;width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--fg)}
+.tu input:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.tu .row{display:grid;gap:0}
+.tu .actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.tu .actions button{font:inherit;font-weight:800;font-size:14px;padding:11px 18px;border-radius:999px;cursor:pointer}
+.tu .go{background:var(--fg);color:var(--surface);border:1px solid var(--fg)}
+.tu .go:disabled{opacity:.5;cursor:wait}
+.tu .cancel{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.tu .err{color:#C62828;font-size:14px;margin:0}
 /* One-time greeting after login */
 .hello{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:var(--brand-deep);color:var(--hero-fill,#CBF6B0);cursor:pointer;transition:opacity .7s cubic-bezier(.4,0,.2,1),visibility 0s linear .7s}
 .hello.out{opacity:0;visibility:hidden}
@@ -201,7 +228,8 @@ footer a:hover,footer a:focus-visible{border-color:var(--fg);outline:none}
       <div class="big" id="remain">€ 0</div>
       <div class="of"><span id="hoursLeft"></span><span id="remainOf"></span></div>
       <div class="meter" id="meter" aria-hidden="true"><i id="meterFill"></i><span class="pace" id="meterPace"></span></div>
-      <div class="meter-legend"><span><b></b>Verwacht verbruik op schema</span><span><em></em>Je krijgt een mail bij 50%, 20% en 10% resterend</span></div>
+      <div class="meter-legend"><span><b></b>Verwacht verbruik op schema</span><span><em></em>Je krijgt een mail bij 50%, 20% en 10% resterend en als de retainer op is</span></div>
+      <div class="topup" id="topup" hidden><button type="button" class="topup-btn" id="topupOpen">Retainer aanvullen</button><span class="topup-status" id="topupStatus"></span></div>
     </div>
   </section>
 
@@ -262,6 +290,34 @@ footer a:hover,footer a:focus-visible{border-color:var(--fg);outline:none}
       <a href="https://www.studioyukon.com" target="_blank" rel="noopener">studioyukon.com ↗</a>
     </div>
   </footer>
+
+<dialog class="tu" id="tuDialog" aria-labelledby="tuTitle">
+  <form id="tuForm" method="dialog" novalidate>
+    <div style="display:grid;gap:6px">
+      <h2 id="tuTitle">Retainer aanvullen</h2>
+      <p>Kies een bedrag. Jordy checkt je aanvraag en stuurt de factuur. Er wordt nog niets gefactureerd of afgeschreven.</p>
+    </div>
+    <fieldset>
+      <legend>Bedrag</legend>
+      <div class="amounts">
+        <label><input type="radio" name="amount" value="3500"> € 3.500</label>
+        <label><input type="radio" name="amount" value="5000" checked> € 5.000</label>
+        <label><input type="radio" name="amount" value="7500"> € 7.500</label>
+        <label><input type="radio" name="amount" value="other"> Ander bedrag</label>
+      </div>
+      <input type="number" id="tuOther" min="500" max="50000" step="100" inputmode="numeric" placeholder="Bedrag in euro" aria-label="Ander bedrag in euro" hidden>
+    </fieldset>
+    <div class="row">
+      <label class="lbl" for="tuRef">PO-nummer of referentie (optioneel)</label>
+      <input type="text" id="tuRef" maxlength="80" autocomplete="off">
+    </div>
+    <p class="err" id="tuErr" role="alert" hidden></p>
+    <div class="actions">
+      <button type="button" class="cancel" id="tuCancel">Annuleren</button>
+      <button type="submit" class="go" id="tuSend">Aanvraag versturen</button>
+    </div>
+  </form>
+</dialog>
 </div>
 
 <script type="module">
@@ -338,7 +394,7 @@ function renderSummary(M, d) {
   const spentPct = M.budget ? Math.min(100, (M.spent / M.budget) * 100) : 0;
   $("meterFill").style.width = `${spentPct}%`;
   $("meterPace").style.left = `${M.budget ? Math.min(100, (M.pacePlanned / M.budget) * 100) : 0}%`;
-  for (const t of THRESHOLDS) {
+  for (const t of THRESHOLDS.filter((x) => x > 0)) {
     const s = document.createElement("span");
     s.className = "th" + (M.pctRemaining <= t ? " hit" : "");
     s.style.left = `${100 - t}%`;
@@ -526,11 +582,53 @@ function renderScope(d) {
   $("scope").hidden = false;
 }
 
+// ---------- top-up request ----------
+const dateNL = new Intl.DateTimeFormat("nl-NL", { day: "numeric", month: "long" });
+function showPending(p) {
+  $("topupStatus").innerHTML = "";
+  if (!p) return;
+  const st = document.createElement("strong");
+  st.textContent = `Aanvraag van ${eur.format(p.amount)} verstuurd`;
+  $("topupStatus").append(st, ` op ${dateNL.format(new Date(p.at))}. Jordy stuurt de factuur.`);
+}
+async function initTopup(d) {
+  if (d.example || window.PORTAL_DATA) return;
+  const slug = location.pathname.split("/").filter(Boolean)[0];
+  const api = `/api/topup?c=${encodeURIComponent(slug)}`;
+  $("topup").hidden = false;
+  try { const r = await fetch(api, { credentials: "same-origin", cache: "no-store" }); if (r.ok) showPending((await r.json()).pending); } catch {}
+  const dlg = $("tuDialog"), other = $("tuOther"), err = $("tuErr");
+  const pick = () => dlg.querySelector('input[name="amount"]:checked')?.value;
+  dlg.addEventListener("change", (e) => { if (e.target.name === "amount") { other.hidden = pick() !== "other"; if (!other.hidden) other.focus(); } });
+  $("topupOpen").addEventListener("click", () => { err.hidden = true; dlg.showModal(); });
+  $("tuCancel").addEventListener("click", () => dlg.close());
+  $("tuForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const v = pick() === "other" ? Number(other.value) : Number(pick());
+    if (!Number.isFinite(v) || v < 500 || v > 50000) { err.textContent = "Kies een bedrag tussen € 500 en € 50.000."; err.hidden = false; return; }
+    $("tuSend").disabled = true; err.hidden = true;
+    try {
+      const r = await fetch(api, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ amount: v, reference: $("tuRef").value }) });
+      const out = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(out.error || "Je aanvraag kon niet worden verstuurd.");
+      showPending(out.pending);
+      dlg.close();
+      $("topupOpen").textContent = "Nog een aanvraag doen";
+    } catch (x) { err.textContent = x.message; err.hidden = false; }
+    finally { $("tuSend").disabled = false; }
+  });
+  if (new URLSearchParams(location.search).has("aanvullen")) {
+    history.replaceState(null, "", location.pathname);
+    dlg.showModal();
+  }
+}
+
 load().then(async (d) => {
   await applyTheme(d);
   const M = summarize(d);
   renderSummary(M, d);
   renderScope(d);
+  initTopup(d);
   renderTimeline(M, d);
   renderLog(M);
   $("export").hidden = !M.entries.length;

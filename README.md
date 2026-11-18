@@ -1,6 +1,6 @@
 # Studio Yukon retainer portal
 
-Each retainer client logs in with their own email address (a one-time link, no password) and lands on their own dashboard: remaining budget, spend through the retainer year, a forecast of when it runs out, and every logged hour per project. Contacts get an email when 50%, 20% and 10% of the budget is left. Claude keeps the data up to date when you ask it.
+Each retainer client logs in with their own email address (a one-time link, no password) and lands on their own dashboard: remaining budget, spend through the retainer year, a forecast of when it runs out, and every logged hour per project. Contacts get an email when 50%, 20% and 10% of the budget is left and when it is used up. They can ask for a top-up from the dashboard or the email; you get an email and invoice it yourself. Claude keeps the data up to date when you ask it.
 
 Runs on the Netlify free plan. Squarespace cannot do this: its Member Areas give every member the same pages, so there is no way to show each client only their own numbers.
 

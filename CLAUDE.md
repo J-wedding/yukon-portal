@@ -8,7 +8,8 @@ Netlify site where each retainer client logs in with their email and sees their 
 - `config/users.json`: client logins (email, name, notify flag). People log in with a link sent to their address, so there are normally no passwords. Never shown to clients. Admins are not here; they live in the `PORTAL_ADMINS` env var on Netlify.
 - `public/assets/retainer.js`: the only place budget maths happens. Dashboard, alerts and the CLI all import it.
 - `public/assets/clients/<slug>.svg`: client logos. Use `fill="currentColor"` and a viewBox so the logo follows light and dark mode.
-- `netlify/functions/retainer-alerts.mjs`: hourly. Emails client contacts once at 50%, 20% and 10% remaining.
+- `netlify/functions/retainer-alerts.mjs`: hourly. Emails client contacts once at 50%, 20%, 10% and 0% remaining. One text for all, in `lib/alert-email.mjs`.
+- `netlify/functions/topup.mjs`: the "Retainer aanvullen" button on the dashboard and in the alerts. A logged-in contact picks an amount (plus optional PO/reference); Jordy gets an email. Nothing is added automatically: after payment, log it with `deposit`, which also clears the pending request.
 
 ## Rules
 
@@ -49,4 +50,4 @@ Jordy keeps one loose text file with notes about everything. When he says "verwe
 | "nieuwe klant Acme" | `client:new acme --name "Acme" --rate 110 --start ... --end ... --deposit ...` then logo, `user:add`, `client:live` |
 | "Acme's hoofdkleur is #FFD400" | `client:new ... --brand "#FFD400"` (or `client:set acme --palette "#FFD400"` later). The script derives all theme colours and prints any contrast shift; tell Jordy about those shifts |
 
-After pushing, report the new remaining budget and say if a 50/20/10 line was crossed, because that client gets an email within the hour.
+After pushing, report the new remaining budget and say if a 50/20/10/0 line was crossed, because that client gets an email within the hour.

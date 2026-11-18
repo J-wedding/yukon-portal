@@ -49,7 +49,7 @@ export default async (req) => {
     const pct = Math.max(0, Math.min(100, m.pctRemaining));
     rows.push(`<article class="row">
       <div class="who"><a href="/${h(slug)}/">${h(data.client.name)}</a>${data.example ? ' <span class="tag">voorbeeld</span>' : ""}<small>${contacts}</small></div>
-      <div class="bar" title="${pct.toFixed(0)}% over"><i style="width:${pct}%"></i>${THRESHOLDS.map((t) => `<b style="left:${t}%"></b>`).join("")}</div>
+      <div class="bar" title="${pct.toFixed(0)}% over"><i style="width:${pct}%"></i>${THRESHOLDS.filter((t) => t > 0).map((t) => `<b style="left:${t}%"></b>`).join("")}</div>
       <div class="num"><strong>${eur.format(m.remaining)}</strong><small>van ${eur.format(m.budget)} · ${Math.round(m.pctRemaining)}%</small></div>
       <div class="meta"><span>${STATUS[m.status]}</span><small>${m.runOut ? `Op rond ${dShort.format(m.runOut)}` : m.spent > 0 ? "Prognose na dag 30" : "Geen verbruik"}</small></div>
       <div class="meta">${usageCell}</div>

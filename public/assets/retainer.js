@@ -3,7 +3,7 @@
 // and scripts/portal.mjs (Node), so every surface shows the same numbers.
 // Pure JavaScript, no dependencies.
 
-export const THRESHOLDS = [50, 20, 10]; // percent of budget still remaining
+export const THRESHOLDS = [50, 20, 10, 0]; // percent of budget still remaining (0 = retainer is op)
 export const DAY = 86400000;
 const FORECAST_MIN_DAYS = 30;
 

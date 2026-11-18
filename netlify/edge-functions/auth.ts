@@ -81,7 +81,7 @@ export default async (req: Request, context: Context) => {
 
   if (!s) {
     if (path.startsWith("/data/")) return new Response("Unauthorized", { status: 401 });
-    return redirect(path === "/" ? "/login" : `/login?next=${encodeURIComponent(path)}`);
+    return redirect(path === "/" ? "/login" : `/login?next=${encodeURIComponent(path + url.search)}`);
   }
 
   const isAdmin = s.r === "admin";
@@ -112,7 +112,7 @@ export default async (req: Request, context: Context) => {
   const dash = path.match(/^\/([a-z0-9-]+)\/?$/);
   if (dash) {
     if (!canSee(dash[1])) return redirect(home);
-    if (!path.endsWith("/")) return redirect(`/${dash[1]}/`);
+    if (!path.endsWith("/")) return redirect(`/${dash[1]}/${url.search}`);
     return new URL("/dashboard.html", req.url);
   }
 
