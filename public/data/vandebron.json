@@ -16,7 +16,7 @@
     "radius": 14,
     "heroFill": "#CBF6B0"
   },
-  "updated": "2026-11-16",
+  "updated": "2026-11-20",
   "retainer": {
     "label": "Design capaciteit",
     "start": "2026-10-19",
@@ -53,6 +53,21 @@
     {
       "id": "tov",
       "name": "Tone of voice deck",
+      "status": "Opgeleverd"
+    },
+    {
+      "id": "tonys-wrapper-people",
+      "name": "Tony's wrapper People",
+      "status": "Opgeleverd"
+    },
+    {
+      "id": "kerstkaart-people",
+      "name": "Kerstkaart People",
+      "status": "Lopend"
+    },
+    {
+      "id": "anti-black-friday-opteller",
+      "name": "Anti-Black Friday opteller",
       "status": "Lopend"
     }
   ],
@@ -112,6 +127,46 @@
       "hours": 3,
       "note": "Controle Engelse versie en hernummering",
       "fp": "adb12e9c20853603"
+    },
+    {
+      "id": "e8",
+      "date": "2026-11-17",
+      "note": "Ontwerp en drukklaar bestand Tony's wrapper",
+      "fp": "78155e3d25c9fd43",
+      "project": "tonys-wrapper-people",
+      "hours": 3
+    },
+    {
+      "id": "e9",
+      "date": "2026-11-18",
+      "note": "Verwerking feedback Aafke: bronlinks en kortere tekstblokken",
+      "fp": "4a91a2349f01bb1d",
+      "project": "tov",
+      "hours": 1
+    },
+    {
+      "id": "e10",
+      "date": "2026-11-18",
+      "note": "Ontwerp voor- en achterkant en drukklaar bestand",
+      "fp": "19c857e13c7808bc",
+      "project": "kerstkaart-people",
+      "hours": 4
+    },
+    {
+      "id": "e11",
+      "date": "2026-11-19",
+      "note": "Animatie opteller en layout per formaat",
+      "fp": "728ec78daf1e645f",
+      "project": "anti-black-friday-opteller",
+      "hours": 4
+    },
+    {
+      "id": "e12",
+      "date": "2026-11-20",
+      "note": "Statics in drie formaten en oplevering v01",
+      "fp": "ae94c5a9aef75405",
+      "project": "anti-black-friday-opteller",
+      "hours": 2
     }
   ],
   "brandedLogin": true
