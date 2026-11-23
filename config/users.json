@@ -10,6 +10,11 @@
         "email": "margovangils@vandebron.nl",
         "name": "Margo van Gils",
         "notify": true
+      },
+      {
+        "email": "jasmijnkorver@vandebron.nl",
+        "name": "Jasmijn Korver",
+        "notify": true
       }
     ]
   }
